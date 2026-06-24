@@ -137,6 +137,8 @@ not a static file, so its absolute Sitemap URL derives from the one config sourc
 - **Play-Store submission gate:** the privacy URL stays **blocked** for Play submission
   until [`src/config/legal.ts`](src/config/legal.ts) `LEGAL_IS_DRAFT` is cleared (binding
   legal text landed — SITE-03). The URL is a **stable contract** either way.
+- **Runbook:** [`DEPLOY.md`](DEPLOY.md) — redeploy (push `main` or `gh workflow run`),
+  verify (`curl` matrix), one-time setup, troubleshooting, custom-domain steps.
 
 ## Phase / roadmap
 

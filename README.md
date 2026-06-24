@@ -75,3 +75,5 @@ site.
 - **Custom domain (later):** flip `base` → `/` in
   [`astro.config.mjs`](astro.config.mjs) and add the domain; nothing else changes
   because every URL funnels through `site`/`base` + `src/lib/base.ts`.
+
+See **[`DEPLOY.md`](DEPLOY.md)** for the full deploy/redeploy/verify runbook.
