@@ -1,0 +1,31 @@
+---
+import { getDict, type Locale } from "../i18n";
+import { withBase } from "../lib/base";
+import LanguageToggle from "./LanguageToggle.astro";
+
+interface Props {
+  locale: Locale;
+  pageKey: string;
+}
+
+const { locale, pageKey } = Astro.props;
+const t = getDict(locale);
+const homePath = locale === "ar" ? "/" : "/en/";
+---
+
+<header class="border-b border-neutral-200">
+  <div
+    class="mx-auto flex max-w-5xl items-center justify-between gap-4 px-4 py-3"
+  >
+    <a
+      href={withBase(homePath)}
+      class="text-lg font-bold text-primary"
+      aria-label={t.siteName}
+    >
+      {t.siteName}
+    </a>
+    <nav class="flex items-center gap-4">
+      <LanguageToggle locale={locale} pageKey={pageKey} />
+    </nav>
+  </div>
+</header>

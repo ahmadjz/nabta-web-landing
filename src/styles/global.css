@@ -1,0 +1,39 @@
+@import "tailwindcss";
+
+/*
+ * Brand tokens — SNAPSHOT from nabta-web-admin/src/globals.css @ commit 62e5f96.
+ * Copied ONLY the Nabta brand green, the focus ring, and the corner radius.
+ * Deliberately NOT copied: the shadcn neutral token set, the `.dark` block, and
+ * `@import "tw-animate-css"` — this marketing site has no shadcn and (for now) no
+ * dark mode. If the admin re-tunes the brand green, re-snapshot + bump the SHA here.
+ */
+@theme {
+  /* #2E7D32 — the mobile AppColors.primary; CTAs, links, focus. */
+  --color-primary: oklch(0.524 0.135 144.2);
+  --color-ring: oklch(0.524 0.135 144.2);
+
+  --radius: 0.625rem;
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+
+  /* Self-hosted Cairo (Arabic + Latin) — weights imported in Base.astro from the
+     @fontsource package, NOT a Google-Fonts CDN (the "zero third-party requests"
+     rule). System fonts back it up before the woff2 loads. */
+  --font-sans:
+    "Cairo", "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial,
+    "Noto Sans Arabic", sans-serif;
+}
+
+@layer base {
+  html {
+    font-family: var(--font-sans);
+  }
+  body {
+    @apply bg-white text-neutral-900;
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-ring);
+    outline-offset: 2px;
+  }
+}

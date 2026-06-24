@@ -1,0 +1,24 @@
+# Build output
+dist/
+
+# Generated Astro types
+.astro/
+
+# Dependencies
+node_modules/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Env (commit only .env.example)
+.env
+.env.*
+!.env.example
+
+# Editor / OS junk
+.vscode/*
+!.vscode/extensions.json
+.idea/
+.DS_Store
+*.swp

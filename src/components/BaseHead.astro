@@ -1,0 +1,65 @@
+---
+import { absoluteUrl, stripBase, withBase } from "../lib/base";
+import { pairFor, type PagePair } from "../i18n/page-pairs";
+import type { Locale } from "../i18n";
+
+interface Props {
+  pageKey: string;
+  locale: Locale;
+  title: string;
+  description: string;
+  noindex?: boolean;
+}
+
+const { pageKey, locale, title, description, noindex = false } = Astro.props;
+
+const pair: PagePair | undefined = pairFor(pageKey);
+// Canonical: from the page-pair when one exists, else the current path. Always
+// routed through absoluteUrl() so it is absolute AND base-prefixed (the 404 path
+// has no pair — stripBase keeps it from double-basing).
+const selfPath = pair ? pair[locale] : stripBase(Astro.url.pathname);
+const canonical = absoluteUrl(selfPath);
+
+// OG image is a placeholder favicon until SITE-02 ships a 1200×630 asset; kept
+// absolute + base-prefixed so the smoke test passes and the ref isn't broken.
+const ogImage = absoluteUrl("/favicon.svg");
+const ogLocale = locale === "ar" ? "ar_AR" : "en_US";
+---
+
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="icon" type="image/svg+xml" href={withBase("/favicon.svg")} />
+
+<title>{title}</title>
+<meta name="description" content={description} />
+<link rel="canonical" href={canonical} />
+{noindex && <meta name="robots" content="noindex" />}
+
+{
+  /* Reciprocal hreflang from the single page-pair map — never dangles because the
+     counterpart is defined in exactly one place (src/i18n/page-pairs.ts). */
+  pair && (
+    <>
+      <link rel="alternate" hreflang="ar" href={absoluteUrl(pair.ar)} />
+      <link rel="alternate" hreflang="en" href={absoluteUrl(pair.en)} />
+      <link rel="alternate" hreflang="x-default" href={absoluteUrl(pair.ar)} />
+    </>
+  )
+}
+
+<!-- Open Graph -->
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="Nabta" />
+<meta property="og:title" content={title} />
+<meta property="og:description" content={description} />
+<meta property="og:url" content={canonical} />
+<meta property="og:locale" content={ogLocale} />
+<meta property="og:image" content={ogImage} />
+
+<!-- Twitter -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content={title} />
+<meta name="twitter:description" content={description} />
+<meta name="twitter:image" content={ogImage} />
+
+<meta name="generator" content={Astro.generator} />

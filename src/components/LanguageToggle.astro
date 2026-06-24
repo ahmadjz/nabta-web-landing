@@ -1,0 +1,30 @@
+---
+import { getDict, otherLocale, type Locale } from "../i18n";
+import { withBase } from "../lib/base";
+import { pathFor } from "../i18n/page-pairs";
+
+interface Props {
+  locale: Locale;
+  pageKey: string;
+}
+
+const { locale, pageKey } = Astro.props;
+const t = getDict(locale);
+const target = otherLocale(locale);
+
+// The counterpart URL comes from the SAME page-pair map hreflang uses, so the
+// toggle and the alternates can never disagree. Fall back to the target home if a
+// page has no pair (e.g. 404).
+const counterpartPath =
+  pathFor(pageKey, target) ?? (target === "ar" ? "/" : "/en/");
+---
+
+<a
+  href={withBase(counterpartPath)}
+  hreflang={target}
+  rel="alternate"
+  lang={target}
+  class="text-sm font-medium text-neutral-700 underline-offset-4 hover:text-primary hover:underline"
+>
+  {t.switchToOther}
+</a>
