@@ -165,6 +165,58 @@ export const ar = {
       phoneLabel: "الهاتف",
     },
   },
+  /**
+   * Legal-page STRUCTURE (SITE-03). Only section HEADINGS live here — they are
+   * STRUCTURE-parity-gated (`: Dict` + a runtime key-path test), so ar/en always
+   * expose the same sections. Binding BODY text is deliberately NOT in this typed
+   * dict: legal counsel may supply it Arabic-first, so it must be free to land
+   * asymmetrically. Until then every section renders the shared `todoNote`
+   * placeholder. `[[project_nabta_landing_site]]`.
+   */
+  legal: {
+    draftBadge: "مسودة — قيد المراجعة القانونية",
+    draftNote:
+      "هذه الصفحة هيكلية فقط؛ سيُضيف الفريق القانوني النص الملزم لاحقًا. لا تعتمد عليها بعد.",
+    placeholderIntro:
+      "هذه نسخة مبدئية لأغراض الهيكلة. العناوين أدناه تحدد ما سيغطّيه المستند، بينما يُضاف النص الملزم لكل قسم لاحقًا.",
+    todoNote: "TODO(legal): يضيف الفريق القانوني النص الملزم لهذا القسم.",
+    contactHeading: "التواصل معنا",
+    privacy: {
+      sections: [
+        {
+          heading:
+            "البيانات التي نجمعها: الهوية والتواصل (الهاتف أو البريد، الاسم، المدينة)",
+        },
+        { heading: "الجهاز والإشعارات (رموز FCM والمنصة)" },
+        { heading: "الموقع والعناوين (الأماكن المحفوظة)" },
+        { heading: "الطلبات وصور إيصالات الدفع" },
+        {
+          heading:
+            "وسائط المستخدم (صور طبيب النبات بالذكاء الاصطناعي، مرفقات التواصل)",
+        },
+        { heading: "بيانات العناية بالنبات" },
+        {
+          heading:
+            "أطراف ثالثة (FCM/Google، مُرسِل رموز التحقق عبر SMS أو البريد، وتخزين MinIO)",
+        },
+        { heading: "كيف نستخدم البيانات" },
+        { heading: "الاحتفاظ بالبيانات" },
+        { heading: "خصوصية الأطفال" },
+        { heading: "حقوق المستخدم" },
+      ],
+    },
+    terms: {
+      sections: [
+        { heading: "قبول الشروط" },
+        { heading: "الحسابات" },
+        { heading: "الاستخدام المقبول" },
+        { heading: "الملكية الفكرية" },
+        { heading: "إخلاء المسؤولية" },
+        { heading: "حدود المسؤولية" },
+        { heading: "القانون الحاكم" },
+      ],
+    },
+  },
   footer: {
     legal: "روابط قانونية",
     contact: "تواصل معنا",

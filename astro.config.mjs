@@ -3,6 +3,9 @@ import { defineConfig } from "astro/config";
 import sitemap from "@astrojs/sitemap";
 import tailwindcss from "@tailwindcss/vite";
 
+import { LEGAL_IS_DRAFT } from "./src/config/legal.ts";
+import { LEGAL_PAIRS } from "./src/i18n/page-pairs.ts";
+
 // ── The single source of truth for the deployed URL ──────────────────────────
 // GitHub Pages PROJECT pages serve under a sub-path, not the domain root. `site`
 // + `base` below are the ONLY place these literals live; every internal link,
@@ -13,10 +16,17 @@ import tailwindcss from "@tailwindcss/vite";
 const SITE = "https://ahmadjz.github.io";
 const BASE = "/nabta-web-landing/";
 
-// Pages that SITE-03 marks DRAFT (noindex) must ALSO be excluded from the
-// sitemap. Append their *built* paths (e.g. "/nabta-web-landing/privacy/") here
-// — the filter is already wired so SITE-03 only adds strings, never re-plumbs.
-const SITEMAP_EXCLUDE = new Set(/** @type {string[]} */ ([]));
+// Draft legal pages (noindex) must ALSO be excluded from the sitemap — the same
+// `LEGAL_IS_DRAFT` flag that drives the banner + noindex drives this, so the three
+// can never disagree. Built paths are base-prefixed with a trailing slash
+// (directory output), e.g. "/nabta-web-landing/privacy/". Clearing the flag (when
+// legal text lands) drops the exclusion and the pages enter the sitemap unchanged.
+const legalBuiltPaths = LEGAL_PAIRS.flatMap((pair) =>
+  [pair.ar, pair.en].map((path) => `${BASE}${path.replace(/^\//, "")}/`),
+);
+const SITEMAP_EXCLUDE = new Set(
+  /** @type {string[]} */ (LEGAL_IS_DRAFT ? legalBuiltPaths : []),
+);
 
 // https://astro.build/config
 export default defineConfig({

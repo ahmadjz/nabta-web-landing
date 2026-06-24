@@ -156,6 +156,51 @@ export const en: Dict = {
       phoneLabel: "Phone",
     },
   },
+  legal: {
+    draftBadge: "DRAFT — pending legal review",
+    draftNote:
+      "This page is structure-only; the legal team will add the binding text later. Do not rely on it yet.",
+    placeholderIntro:
+      "This is a preliminary version for structuring purposes. The headings below define what the document will cover; the binding text for each section is added later.",
+    todoNote:
+      "TODO(legal): the legal team will add the binding text for this section.",
+    contactHeading: "Contact us",
+    privacy: {
+      sections: [
+        {
+          heading:
+            "Data we collect: identity & contact (phone or email, name, city)",
+        },
+        { heading: "Device & push (FCM tokens and platform)" },
+        { heading: "Location & addresses (saved places)" },
+        { heading: "Orders & payment-receipt images" },
+        {
+          heading:
+            "User media (AI plant-doctor photos, contact-us attachments)",
+        },
+        { heading: "Plant-care data" },
+        {
+          heading:
+            "Third parties (FCM/Google, the OTP SMS/email dispatcher, and MinIO storage)",
+        },
+        { heading: "How we use data" },
+        { heading: "Data retention" },
+        { heading: "Children's privacy" },
+        { heading: "User rights" },
+      ],
+    },
+    terms: {
+      sections: [
+        { heading: "Acceptance of terms" },
+        { heading: "Accounts" },
+        { heading: "Acceptable use" },
+        { heading: "Intellectual property" },
+        { heading: "Disclaimers" },
+        { heading: "Limitation of liability" },
+        { heading: "Governing law" },
+      ],
+    },
+  },
   footer: {
     legal: "Legal",
     contact: "Contact us",

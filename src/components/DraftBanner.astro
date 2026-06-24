@@ -1,0 +1,25 @@
+---
+/**
+ * The "DRAFT — pending legal review" banner. Rendered on the legal pages only
+ * while `LEGAL_IS_DRAFT` (the caller decides). `data-draft-banner` is the stable
+ * test anchor; `role="note"` + the amber palette make the draft state obvious to
+ * both sighted users and AT.
+ */
+import { getDict, type Locale } from "../i18n";
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const t = getDict(locale).legal;
+---
+
+<aside
+  data-draft-banner
+  role="note"
+  class="rounded-md border border-amber-300 bg-amber-50 p-4 text-amber-900"
+>
+  <p class="font-bold">{t.draftBadge}</p>
+  <p class="mt-1 text-sm">{t.draftNote}</p>
+</aside>
