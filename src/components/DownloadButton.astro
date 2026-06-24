@@ -1,0 +1,57 @@
+---
+/**
+ * The single source of the download-CTA logic, used by Hero + DownloadCTA. Bound
+ * to the `PLAY_STORE_URL` config constant:
+ *   - empty  ⇒ a DISABLED "coming soon" control (a <span>, role=button,
+ *     aria-disabled) with NO href — never a dead store link.
+ *   - set    ⇒ a live anchor to the store listing.
+ * Flipped to live by setting PLAY_STORE_URL on launch (a neutral brand button for
+ * now; the official Google Play badge asset swaps in then per brand-asset rules).
+ * The `data-download-cta` + `data-state` attrs are the stable test anchor.
+ */
+import { PLAY_STORE_URL } from "../config";
+import { getDict, type Locale } from "../i18n";
+
+interface Props {
+  locale: Locale;
+  /** Extra classes (e.g. a size bump from the hero). */
+  class?: string;
+}
+
+const { locale, class: className = "" } = Astro.props;
+const t = getDict(locale).marketing.cta;
+const isLive = PLAY_STORE_URL.trim() !== "";
+
+const base =
+  "inline-flex items-center gap-3 rounded-md px-6 py-3 text-base font-semibold transition";
+---
+
+{
+  isLive ? (
+    <a
+      href={PLAY_STORE_URL}
+      data-download-cta
+      data-state="live"
+      target="_blank"
+      rel="noopener"
+      class={`${base} bg-primary text-white shadow-sm hover:bg-primary/90 ${className}`}
+    >
+      {t.label}
+    </a>
+  ) : (
+    <span
+      data-download-cta
+      data-state="disabled"
+      role="button"
+      aria-disabled="true"
+      aria-label={t.ariaComingSoon}
+      title={t.ariaComingSoon}
+      class={`${base} cursor-not-allowed bg-neutral-200 text-neutral-600 ${className}`}
+    >
+      {t.label}
+      <span class="rounded-full bg-white px-2 py-0.5 text-xs font-bold uppercase tracking-wide text-neutral-500">
+        {t.comingSoon}
+      </span>
+    </span>
+  )
+}

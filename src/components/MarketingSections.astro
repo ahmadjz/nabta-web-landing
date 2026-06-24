@@ -1,0 +1,32 @@
+---
+/**
+ * The marketing landing's section order, composed once so the ar `/` and en
+ * `/en/` pages stay byte-for-byte parallel (they differ only by `locale`). STRICT
+ * ar/en parity for marketing is therefore structural — both locales render the
+ * exact same sections; only the dict copy differs.
+ */
+import type { Locale } from "../i18n";
+import Hero from "./sections/Hero.astro";
+import WhatIsNabta from "./sections/WhatIsNabta.astro";
+import Features from "./sections/Features.astro";
+import Screenshots from "./sections/Screenshots.astro";
+import Testimonials from "./sections/Testimonials.astro";
+import FAQ from "./sections/FAQ.astro";
+import DownloadCTA from "./sections/DownloadCTA.astro";
+import Contact from "./sections/Contact.astro";
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+---
+
+<Hero locale={locale} />
+<WhatIsNabta locale={locale} />
+<Features locale={locale} />
+<Screenshots locale={locale} />
+<Testimonials locale={locale} />
+<FAQ locale={locale} />
+<DownloadCTA locale={locale} />
+<Contact locale={locale} />

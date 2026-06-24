@@ -1,0 +1,49 @@
+---
+import { getDict, type Locale } from "../../i18n";
+import { CONTACT_EMAIL, CONTACT_PHONE, CONTACT_WHATSAPP } from "../../config";
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const t = getDict(locale).marketing.contact;
+
+// Optional channels render only when configured — no dead tel:/WhatsApp links.
+const whatsapp = CONTACT_WHATSAPP.trim();
+const phone = CONTACT_PHONE.trim();
+
+const linkClass =
+  "inline-flex items-center gap-2 rounded-md border border-neutral-200 px-4 py-2 text-sm font-medium text-neutral-800 underline-offset-4 transition hover:border-primary hover:text-primary";
+---
+
+<section class="mx-auto max-w-3xl px-4 py-16 text-center sm:py-20">
+  <h2 class="text-2xl font-bold text-neutral-900 sm:text-3xl">{t.heading}</h2>
+  <p class="mx-auto mt-4 max-w-xl text-neutral-700">{t.body}</p>
+  <div
+    class="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:flex-wrap sm:justify-center"
+  >
+    <a href={`mailto:${CONTACT_EMAIL}`} dir="ltr" class={linkClass}>
+      {t.emailLabel}: {CONTACT_EMAIL}
+    </a>
+    {
+      whatsapp && (
+        <a
+          href={`https://wa.me/${whatsapp}`}
+          target="_blank"
+          rel="noopener"
+          class={linkClass}
+        >
+          {t.whatsappLabel}
+        </a>
+      )
+    }
+    {
+      phone && (
+        <a href={`tel:${phone}`} dir="ltr" class={linkClass}>
+          {t.phoneLabel}: {phone}
+        </a>
+      )
+    }
+  </div>
+</section>
