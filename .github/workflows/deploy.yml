@@ -1,0 +1,67 @@
+name: Deploy (GitHub Pages)
+
+# Ships the audited static build to GitHub Pages via the OFFICIAL artifact flow:
+#   astro build → actions/upload-pages-artifact (dist/) → actions/deploy-pages.
+# Quality is gated separately by ci.yml (lint + smoke + preview + link-check +
+# Lighthouse), which runs in parallel on the same push. This workflow only ships;
+# if the build here fails the `deploy` job is skipped, so a broken build never
+# publishes.
+#
+# PREREQUISITE (human-gated, one-time): repo PUBLIC + Settings → Pages → Source =
+# "GitHub Actions". Until that toggle lands, `deploy-pages` fails with "Get Pages
+# site failed" — it cannot self-enable Pages. See SITE-TASK-05 + CLAUDE.md.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Least privilege: `contents: read` for checkout; `pages: write` + `id-token:
+# write` are the two the OIDC-based Pages deploy requires.
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# One deploy at a time. cancel-in-progress: false so an in-flight publish is
+# allowed to finish rather than being aborted mid-deploy by a newer push.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build (astro)
+        run: npm run build
+
+      # Uploads dist/ as the Pages artifact. dist/.nojekyll (copied from public/)
+      # ships inside it — without it Jekyll would drop Astro's `_astro/` asset dir
+      # (the leading-underscore folder) and every hashed CSS/JS 404s.
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist/
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5

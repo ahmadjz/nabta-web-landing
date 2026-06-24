@@ -62,5 +62,16 @@ scripts/preview-smoke.mjs
 
 ## Hosting
 
-Published to **GitHub Pages** (public HTTPS). The interim dev VM is internet-less and
-does not host this site. A custom domain is adopted later (flip `base` → `/`).
+Published to **GitHub Pages** (public HTTPS) by
+[`.github/workflows/deploy.yml`](.github/workflows/deploy.yml) on every push to
+`main`: `astro build` → `actions/upload-pages-artifact` (`dist/`) →
+`actions/deploy-pages`. The interim dev VM is internet-less and does not host this
+site.
+
+- **Live URL:** `https://ahmadjz.github.io/nabta-web-landing/`
+  (privacy: `…/privacy`, terms: `…/terms`).
+- **One-time setup (human-gated):** the repo must be **public** and **Settings →
+  Pages → Source = "GitHub Actions"** — the workflow cannot self-enable Pages.
+- **Custom domain (later):** flip `base` → `/` in
+  [`astro.config.mjs`](astro.config.mjs) and add the domain; nothing else changes
+  because every URL funnels through `site`/`base` + `src/lib/base.ts`.

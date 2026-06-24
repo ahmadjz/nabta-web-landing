@@ -120,9 +120,23 @@ not a static file, so its absolute Sitemap URL derives from the one config sourc
 ## Hosting / deploy
 
 - **GitHub Pages** (public HTTPS) — the URL submitted to Google Play. The interim dev VM
-  is internet-less and is **not** a host here (decision 34 D4). SITE-05 wires the Pages
-  publish + has a **human-gated** repo-settings handoff (repo public + Pages source =
-  GitHub Actions). `public/.nojekyll` keeps Pages from dropping `_astro/`.
+  is internet-less and is **not** a host here (decision 34 D4).
+- **Canonical live URL: `https://ahmadjz.github.io/nabta-web-landing/`** (privacy at
+  `…/privacy`, terms at `…/terms`). A **custom domain later** flips `base` → `/` in
+  [`astro.config.mjs`](astro.config.mjs) — nothing else changes (everything funnels
+  through `site`/`base` + [`src/lib/base.ts`](src/lib/base.ts)).
+- **Deploy (SITE-05):** [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml)
+  on push to `main` — `astro build` → `actions/upload-pages-artifact@v3` (`dist/`) →
+  `actions/deploy-pages@v5`, with `permissions: { contents: read, pages: write,
+  id-token: write }`, `environment: github-pages`, and `concurrency: pages`
+  (`cancel-in-progress: false`). Quality is gated separately by `ci.yml` in parallel.
+  `public/.nojekyll` (shipped to `dist/`) keeps Pages from dropping `_astro/`.
+- **Human-gated, one-time** (the agent cannot self-apply): repo **public** + **Settings
+  → Pages → Source = "GitHub Actions"**. `deploy-pages` fails with "Get Pages site
+  failed" until that toggle lands.
+- **Play-Store submission gate:** the privacy URL stays **blocked** for Play submission
+  until [`src/config/legal.ts`](src/config/legal.ts) `LEGAL_IS_DRAFT` is cleared (binding
+  legal text landed — SITE-03). The URL is a **stable contract** either way.
 
 ## Phase / roadmap
 
