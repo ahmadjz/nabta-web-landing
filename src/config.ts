@@ -21,5 +21,12 @@ export const CONTACT_WHATSAPP = ""; // TODO(SITE-02): confirm WhatsApp number (d
 export const CONTACT_PHONE = ""; // TODO(SITE-02): confirm phone number
 
 /** Empty ⇒ the download CTA renders a disabled "coming soon" (chicken-and-egg: the
- *  Play listing needs THIS site's privacy URL first). Flip on launch. */
+ *  Play listing needs THIS site's privacy URL first). Flip on launch. ALSO wired
+ *  to the JSON-LD MobileApplication `installUrl` (omitted while empty — never a
+ *  dead store link in structured data). */
 export const PLAY_STORE_URL = "";
+
+/** The brand green (#2E7D32 — mobile AppColors.primary, the same value behind
+ *  `--color-primary` in global.css + the favicon). Used for `<meta theme-color>`
+ *  and the web-app-manifest theme/icon background, so they can't drift from brand. */
+export const BRAND_COLOR = "#2E7D32";

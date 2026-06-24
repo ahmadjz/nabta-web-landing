@@ -9,6 +9,8 @@
     "preview": "astro preview",
     "test": "node --test \"test/**/*.test.mjs\"",
     "test:preview": "node scripts/preview-smoke.mjs",
+    "test:links": "node scripts/link-check.mjs",
+    "gen:icons": "node scripts/gen-icons.mjs",
     "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check .",

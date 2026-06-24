@@ -30,6 +30,51 @@ jobs:
         run: npm run test
 
       # Preview-SERVED checks — astro preview honours `base` (astro dev does not).
-      # SITE-02/03 extend this step with an internal link-check + Lighthouse.
       - name: Preview-served checks
         run: npm run test:preview
+
+      # Internal link-check + no-third-party NETWORK assertion (preview-served).
+      - name: Link-check + no-third-party
+        run: npm run test:links
+
+  # Lighthouse runs the audited build through `astro preview` (honours `base`) and
+  # GATES SEO + accessibility + best-practices at firm thresholds (deterministic for
+  # Astro static HTML). PERFORMANCE is collected + reported but NOT gated — a
+  # throttled perf score is flaky and would create a stuck loop (see lighthouserc.json).
+  lighthouse:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build (astro)
+        run: npm run build
+
+      - name: Start preview server (honours base)
+        run: |
+          npm run preview -- --host 127.0.0.1 --port 4321 &
+          for i in $(seq 1 60); do
+            if curl -sf http://127.0.0.1:4321/nabta-web-landing/ >/dev/null; then
+              echo "preview up"; exit 0
+            fi
+            sleep 1
+          done
+          echo "preview server never came up" >&2; exit 1
+
+      - name: Lighthouse (SEO/a11y/best-practices gated; performance report-only)
+        uses: treosh/lighthouse-ci-action@v12
+        with:
+          urls: |
+            http://127.0.0.1:4321/nabta-web-landing/
+            http://127.0.0.1:4321/nabta-web-landing/en/
+          configPath: ./lighthouserc.json
+          uploadArtifacts: true
+          temporaryPublicStorage: true

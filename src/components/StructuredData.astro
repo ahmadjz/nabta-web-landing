@@ -1,0 +1,59 @@
+---
+/**
+ * JSON-LD structured data (SITE-04) — one `@graph` with:
+ *   - Organization: the Nabta brand (stable identity; the localized endonym goes
+ *     in `alternateName`, the per-locale tagline in `description`).
+ *   - MobileApplication: the Nabta app. `installUrl` is wired to the
+ *     `PLAY_STORE_URL` config constant — the FUTURE Play-Store listing — and is
+ *     OMITTED while that constant is empty, mirroring the download CTA's
+ *     "coming soon" rule (never a dead store link, in markup OR structured data).
+ *
+ * All URLs route through `absoluteUrl()` so they are absolute + base-prefixed and
+ * survive the future custom-domain switch. Emitted via `set:html` of a single
+ * JSON string (no user input → no injection surface).
+ */
+import { absoluteUrl } from "../lib/base";
+import { getDict, type Locale } from "../i18n";
+import { CONTACT_EMAIL, PLAY_STORE_URL } from "../config";
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const t = getDict(locale);
+
+const organization = {
+  "@type": "Organization",
+  "@id": `${absoluteUrl("/")}#organization`,
+  name: "Nabta",
+  alternateName: "نبتة",
+  description: t.tagline,
+  url: absoluteUrl("/"),
+  email: CONTACT_EMAIL,
+  logo: absoluteUrl("/icon-512.png"),
+};
+
+const playUrl = PLAY_STORE_URL.trim();
+const mobileApplication = {
+  "@type": "MobileApplication",
+  "@id": `${absoluteUrl("/")}#app`,
+  name: "Nabta",
+  alternateName: "نبتة",
+  description: t.tagline,
+  applicationCategory: "ShoppingApplication",
+  operatingSystem: "ANDROID",
+  publisher: { "@id": `${absoluteUrl("/")}#organization` },
+  // Free download; SYP/USD product prices live in the app, not the listing.
+  offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
+  // Wired to the future Play-listing constant; omitted while empty (no dead link).
+  ...(playUrl ? { installUrl: playUrl, downloadUrl: playUrl } : {}),
+};
+
+const graph = {
+  "@context": "https://schema.org",
+  "@graph": [organization, mobileApplication],
+};
+---
+
+<script type="application/ld+json" set:html={JSON.stringify(graph)} />

@@ -1,0 +1,19 @@
+{
+  "//": "Lighthouse-CI assertions (SITE-04). SEO + accessibility + best-practices are GATED at firm thresholds — deterministic for Astro's static HTML, the reason Astro was chosen over a SPA (decision 34 D2). PERFORMANCE is collected + reported but NOT gated (\"off\"): a throttled perf score is environment-flaky and would create a stuck CI loop. Run against `astro preview` (honours `base`) — never `astro dev`. URLs are passed by the pinned treosh/lighthouse-ci-action in ci.yml; only the two INDEXABLE home pages are audited (the DRAFT legal pages are intentionally noindex, which correctly lowers their SEO score, so they are not gated).",
+  "ci": {
+    "collect": {
+      "numberOfRuns": 1,
+      "settings": {
+        "chromeFlags": "--no-sandbox --headless=new"
+      }
+    },
+    "assert": {
+      "assertions": {
+        "categories:seo": ["error", { "minScore": 1 }],
+        "categories:accessibility": ["error", { "minScore": 1 }],
+        "categories:best-practices": ["error", { "minScore": 1 }],
+        "categories:performance": "off"
+      }
+    }
+  }
+}

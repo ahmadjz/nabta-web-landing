@@ -2,6 +2,8 @@
 import { absoluteUrl, stripBase, withBase } from "../lib/base";
 import { pairFor, type PagePair } from "../i18n/page-pairs";
 import type { Locale } from "../i18n";
+import { BRAND_COLOR } from "../config";
+import StructuredData from "./StructuredData.astro";
 
 interface Props {
   pageKey: string;
@@ -25,11 +27,27 @@ const canonical = absoluteUrl(selfPath);
 // resolve it on the GitHub-Pages sub-path. Real art swaps in at SITE-04/launch.
 const ogImage = absoluteUrl("/og-image.png");
 const ogLocale = locale === "ar" ? "ar_AR" : "en_US";
+const ogAltLocale = locale === "ar" ? "en_US" : "ar_AR";
 ---
 
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="theme-color" content={BRAND_COLOR} />
+
+<!-- Favicon + app icons (all base-prefixed; PNG set from scripts/gen-icons.mjs). -->
 <link rel="icon" type="image/svg+xml" href={withBase("/favicon.svg")} />
+<link
+  rel="icon"
+  type="image/png"
+  sizes="32x32"
+  href={withBase("/favicon-32.png")}
+/>
+<link
+  rel="apple-touch-icon"
+  sizes="180x180"
+  href={withBase("/apple-touch-icon.png")}
+/>
+<link rel="manifest" href={withBase("/site.webmanifest")} />
 
 <title>{title}</title>
 <meta name="description" content={description} />
@@ -55,7 +73,9 @@ const ogLocale = locale === "ar" ? "ar_AR" : "en_US";
 <meta property="og:description" content={description} />
 <meta property="og:url" content={canonical} />
 <meta property="og:locale" content={ogLocale} />
+<meta property="og:locale:alternate" content={ogAltLocale} />
 <meta property="og:image" content={ogImage} />
+<meta property="og:image:alt" content={title} />
 <meta property="og:image:width" content="1200" />
 <meta property="og:image:height" content="630" />
 
@@ -64,5 +84,8 @@ const ogLocale = locale === "ar" ? "ar_AR" : "en_US";
 <meta name="twitter:title" content={title} />
 <meta name="twitter:description" content={description} />
 <meta name="twitter:image" content={ogImage} />
+<meta name="twitter:image:alt" content={title} />
+
+<StructuredData locale={locale} />
 
 <meta name="generator" content={Astro.generator} />
