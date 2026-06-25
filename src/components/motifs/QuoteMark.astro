@@ -1,0 +1,22 @@
+---
+/** Decorative opening-quote glyph for testimonial cards (LVR-02). Fill via
+ *  `currentColor`. aria-hidden, intrinsic-dimensioned, no a11y role — the quoted
+ *  text itself carries the meaning. */
+interface Props {
+  class?: string;
+}
+const { class: className = "" } = Astro.props;
+---
+
+<svg
+  class={className}
+  viewBox="0 0 48 48"
+  fill="currentColor"
+  aria-hidden="true"
+  focusable="false"
+  xmlns="http://www.w3.org/2000/svg"
+>
+  <path
+    d="M20 10c-7 3-12 10-12 19v9h13V25h-7c0-5 3-9 8-11l-2-4Zm20 0c-7 3-12 10-12 19v9h13V25h-7c0-5 3-9 8-11l-2-4Z"
+  ></path>
+</svg>

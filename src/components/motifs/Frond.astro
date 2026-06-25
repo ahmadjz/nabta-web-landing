@@ -1,0 +1,29 @@
+---
+/** Decorative fern-frond motif (LVR-02). Stroke uses `currentColor`. aria-hidden,
+ *  intrinsic-dimensioned, no a11y role. */
+interface Props {
+  class?: string;
+}
+const { class: className = "" } = Astro.props;
+---
+
+<svg
+  class={className}
+  viewBox="0 0 48 48"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="1.6"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+  aria-hidden="true"
+  focusable="false"
+  xmlns="http://www.w3.org/2000/svg"
+>
+  <path d="M24 44C24 30 24 16 24 6"></path>
+  <path d="M24 12c-4-3-9-3-13-1 2 4 6 6 10 5"></path>
+  <path d="M24 12c4-3 9-3 13-1-2 4-6 6-10 5"></path>
+  <path d="M24 22c-4-3-9-3-13-1 2 4 6 6 10 5"></path>
+  <path d="M24 22c4-3 9-3 13-1-2 4-6 6-10 5"></path>
+  <path d="M24 32c-3-2-7-2-10-1 2 3 5 4 8 4"></path>
+  <path d="M24 32c3-2 7-2 10-1-2 3-5 4-8 4"></path>
+</svg>

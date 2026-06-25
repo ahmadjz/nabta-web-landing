@@ -1,0 +1,61 @@
+---
+/**
+ * The section shell every marketing block composes into (LVR-02). Bakes the
+ * vertical rhythm (`--space-section-y`), the centered editorial/prose container,
+ * an optional top `BlobDivider`, and an aria-hidden decorative motif slot. Sections
+ * slot into this WITHOUT changing MarketingSections' frozen order (LVR-04).
+ *
+ * `tone="forest"` is the full-bleed dark CTA band — it adds `.forest-band` so the
+ * focus ring switches to cream (global.css) and stays visible on the dark ground.
+ */
+import BlobDivider from "./motifs/BlobDivider.astro";
+
+type Tone = "white" | "cream" | "forest";
+type Width = "editorial" | "prose";
+
+interface Props {
+  tone?: Tone;
+  width?: Width;
+  id?: string;
+  /** Render a botanical blob divider along the section's top edge. */
+  divider?: boolean;
+  class?: string;
+}
+
+const {
+  tone = "white",
+  width = "editorial",
+  id,
+  divider = false,
+  class: className = "",
+} = Astro.props;
+
+const TONE: Record<Tone, string> = {
+  white: "bg-surface text-ink",
+  cream: "bg-cream text-ink",
+  forest: "forest-band bg-primary-900 text-cream",
+};
+
+const WIDTH: Record<Width, string> = {
+  editorial: "max-w-editorial",
+  prose: "max-w-prose",
+};
+---
+
+<section
+  id={id}
+  class:list={["relative isolate overflow-hidden", TONE[tone], className]}
+>
+  {divider && <BlobDivider class="absolute inset-x-0 top-0 -z-10 w-full" />}
+  <div class="pointer-events-none absolute inset-0 -z-10" aria-hidden="true">
+    <slot name="motif" />
+  </div>
+  <div
+    class:list={[
+      "mx-auto px-[var(--space-gutter)] py-[var(--space-section-y)]",
+      WIDTH[width],
+    ]}
+  >
+    <slot />
+  </div>
+</section>

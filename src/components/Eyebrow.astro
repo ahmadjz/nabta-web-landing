@@ -1,0 +1,18 @@
+---
+/**
+ * Small kicker label above a heading (LVR-02). `text-eyebrow` carries the size +
+ * tracking token; `.u-eyebrow` uppercases the Latin face and (via html[dir=rtl])
+ * leaves Arabic untouched — Arabic has no letter case. Clay-toned by default.
+ */
+interface Props {
+  class?: string;
+}
+
+const { class: className = "" } = Astro.props;
+---
+
+<span
+  class:list={["u-eyebrow text-eyebrow inline-block text-clay-700", className]}
+>
+  <slot />
+</span>

@@ -1,0 +1,22 @@
+---
+/** Decorative organic blob divider for a section's top edge (LVR-02). Wide aspect;
+ *  fill via `currentColor` (tint with a wrapper `text-*` matching the section it
+ *  divides into). `preserveAspectRatio=none` lets it stretch full-bleed.
+ *  aria-hidden, intrinsic-dimensioned, no a11y role. */
+interface Props {
+  class?: string;
+}
+const { class: className = "" } = Astro.props;
+---
+
+<svg
+  class={className}
+  viewBox="0 0 1440 80"
+  fill="currentColor"
+  preserveAspectRatio="none"
+  aria-hidden="true"
+  focusable="false"
+  xmlns="http://www.w3.org/2000/svg"
+>
+  <path d="M0 40C180 8 360 0 540 18s360 56 540 50 300-44 360-52v-16H0Z"></path>
+</svg>

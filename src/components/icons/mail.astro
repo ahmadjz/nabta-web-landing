@@ -1,0 +1,24 @@
+---
+/** Line-art envelope icon (LVR-02) — the contact email channel. 24×24,
+ *  `currentColor` stroke. aria-hidden, intrinsic-dimensioned, no a11y role. */
+interface Props {
+  class?: string;
+}
+const { class: className = "" } = Astro.props;
+---
+
+<svg
+  class={className}
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="1.6"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+  aria-hidden="true"
+  focusable="false"
+  xmlns="http://www.w3.org/2000/svg"
+>
+  <rect x="3" y="5" width="18" height="14" rx="2"></rect>
+  <path d="m4 7 8 6 8-6"></path>
+</svg>

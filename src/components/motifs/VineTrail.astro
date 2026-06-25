@@ -1,0 +1,44 @@
+---
+/** Decorative trailing-vine motif — a wide horizontal run of leaves (LVR-02).
+ *  Directional; mirror in RTL with `[dir=rtl]:-scale-x-100` on the wrapper. Stroke
+ *  uses `currentColor`. aria-hidden, intrinsic-dimensioned, no a11y role. */
+interface Props {
+  class?: string;
+}
+const { class: className = "" } = Astro.props;
+---
+
+<svg
+  class={className}
+  viewBox="0 0 160 32"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="1.4"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+  aria-hidden="true"
+  focusable="false"
+  xmlns="http://www.w3.org/2000/svg"
+>
+  <path d="M2 16C30 6 60 26 88 16s52-20 70-12"></path>
+  <path
+    d="M24 13c-3-3-3-7-1-10 3 2 4 7 1 10Z"
+    fill="currentColor"
+    stroke="none"
+    opacity="0.7"></path>
+  <path
+    d="M52 19c3 3 3 7 1 10-3-2-4-7-1-10Z"
+    fill="currentColor"
+    stroke="none"
+    opacity="0.7"></path>
+  <path
+    d="M88 13c-3-3-3-7-1-10 3 2 4 7 1 10Z"
+    fill="currentColor"
+    stroke="none"
+    opacity="0.7"></path>
+  <path
+    d="M120 19c3 3 3 7 1 10-3-2-4-7-1-10Z"
+    fill="currentColor"
+    stroke="none"
+    opacity="0.7"></path>
+</svg>

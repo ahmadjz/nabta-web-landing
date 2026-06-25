@@ -1,0 +1,31 @@
+---
+/** Decorative film-grain overlay (LVR-02) — a faint feTurbulence noise texture to
+ *  warm flat fills. Very low opacity; the filter ID takes an optional suffix so
+ *  multiple instances stay unique. aria-hidden, intrinsic-dimensioned, no a11y
+ *  role. */
+interface Props {
+  class?: string;
+  idSuffix?: string;
+}
+const { class: className = "", idSuffix = "" } = Astro.props;
+const id = `grain${idSuffix}`;
+---
+
+<svg
+  class={className}
+  viewBox="0 0 200 200"
+  preserveAspectRatio="xMidYMid slice"
+  aria-hidden="true"
+  focusable="false"
+  xmlns="http://www.w3.org/2000/svg"
+>
+  <filter id={id}>
+    <feTurbulence
+      type="fractalNoise"
+      baseFrequency="0.9"
+      numOctaves="2"
+      stitchTiles="stitch"></feTurbulence>
+    <feColorMatrix type="saturate" values="0"></feColorMatrix>
+  </filter>
+  <rect width="200" height="200" filter={`url(#${id})`} opacity="0.5"></rect>
+</svg>

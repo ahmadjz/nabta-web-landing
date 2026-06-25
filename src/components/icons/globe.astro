@@ -1,0 +1,27 @@
+---
+/** Line-art globe icon (LVR-02) — the language toggle. 24×24, `currentColor`
+ *  stroke. aria-hidden, intrinsic-dimensioned, no a11y role. */
+interface Props {
+  class?: string;
+}
+const { class: className = "" } = Astro.props;
+---
+
+<svg
+  class={className}
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="1.6"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+  aria-hidden="true"
+  focusable="false"
+  xmlns="http://www.w3.org/2000/svg"
+>
+  <circle cx="12" cy="12" r="9"></circle>
+  <path d="M3 12h18"></path>
+  <path
+    d="M12 3c2.5 2.5 3.8 5.7 3.8 9S14.5 18.5 12 21c-2.5-2.5-3.8-5.7-3.8-9S9.5 5.5 12 3Z"
+  ></path>
+</svg>

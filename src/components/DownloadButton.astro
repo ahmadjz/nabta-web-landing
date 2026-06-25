@@ -7,10 +7,15 @@
  *   - set    ⇒ a live anchor to the store listing.
  * Flipped to live by setting PLAY_STORE_URL on launch (a neutral brand button for
  * now; the official Google Play badge asset swaps in then per brand-asset rules).
- * The `data-download-cta` + `data-state` attrs are the stable test anchor.
+ *
+ * LVR-02: refactored to render through `Button.astro` (shared skin + disabled
+ * rendering). The `data-download-cta` + `data-state` attrs are the stable test
+ * anchor (marketing.test) — they pass straight through Button's `...rest`. Only
+ * the skin changed here; the disabled/live LOGIC is untouched.
  */
 import { PLAY_STORE_URL } from "../config";
 import { getDict, type Locale } from "../i18n";
+import Button from "./Button.astro";
 
 interface Props {
   locale: Locale;
@@ -21,37 +26,34 @@ interface Props {
 const { locale, class: className = "" } = Astro.props;
 const t = getDict(locale).marketing.cta;
 const isLive = PLAY_STORE_URL.trim() !== "";
-
-const base =
-  "inline-flex items-center gap-3 rounded-md px-6 py-3 text-base font-semibold transition";
 ---
 
 {
   isLive ? (
-    <a
+    <Button
+      variant="primary"
       href={PLAY_STORE_URL}
-      data-download-cta
-      data-state="live"
       target="_blank"
       rel="noopener"
-      class={`${base} bg-primary text-white shadow-sm hover:bg-primary/90 ${className}`}
+      class={className}
+      data-download-cta
+      data-state="live"
     >
       {t.label}
-    </a>
+    </Button>
   ) : (
-    <span
-      data-download-cta
-      data-state="disabled"
-      role="button"
-      aria-disabled="true"
+    <Button
+      disabled
+      class={className}
       aria-label={t.ariaComingSoon}
       title={t.ariaComingSoon}
-      class={`${base} cursor-not-allowed bg-neutral-200 text-neutral-600 ${className}`}
+      data-download-cta
+      data-state="disabled"
     >
       {t.label}
-      <span class="rounded-full bg-white px-2 py-0.5 text-xs font-bold uppercase tracking-wide text-neutral-600">
+      <span class="rounded-full bg-surface px-2 py-0.5 text-xs font-bold uppercase tracking-wide text-ink-700">
         {t.comingSoon}
       </span>
-    </span>
+    </Button>
   )
 }

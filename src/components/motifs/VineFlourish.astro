@@ -1,0 +1,40 @@
+---
+/** Decorative curling-vine flourish (LVR-02). Directional — mirror in RTL with
+ *  `[dir=rtl]:-scale-x-100` on the wrapper. Stroke uses `currentColor`.
+ *  aria-hidden, intrinsic-dimensioned, no a11y role. */
+interface Props {
+  class?: string;
+}
+const { class: className = "" } = Astro.props;
+---
+
+<svg
+  class={className}
+  viewBox="0 0 96 48"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="1.6"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+  aria-hidden="true"
+  focusable="false"
+  xmlns="http://www.w3.org/2000/svg"
+>
+  <path d="M4 40C20 40 32 30 40 18 46 9 56 6 66 10c8 3 10 11 6 16-3 4-9 4-11-1"
+  ></path>
+  <path
+    d="M40 18c-1-5 2-9 7-11-1 5-3 8-7 11Z"
+    fill="currentColor"
+    stroke="none"
+    opacity="0.8"></path>
+  <path
+    d="M58 24c4-3 9-3 12 0-4 2-9 2-12 0Z"
+    fill="currentColor"
+    stroke="none"
+    opacity="0.7"></path>
+  <path
+    d="M22 36c-2-4-1-8 2-11 1 4 0 8-2 11Z"
+    fill="currentColor"
+    stroke="none"
+    opacity="0.6"></path>
+</svg>

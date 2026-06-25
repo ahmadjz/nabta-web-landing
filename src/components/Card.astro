@@ -1,0 +1,32 @@
+---
+/**
+ * Content surface card (LVR-02). A rounded, hairline-bordered panel with the
+ * green-tinted "leaf" elevation that lifts on hover. `inverted` is the forest
+ * variant (adds `.forest-band` so a focused control inside keeps a cream ring);
+ * `clay` is the terracotta accent.
+ */
+type Variant = "plain" | "inverted" | "clay";
+
+interface Props {
+  variant?: Variant;
+  class?: string;
+}
+
+const { variant = "plain", class: className = "" } = Astro.props;
+
+const VARIANT: Record<Variant, string> = {
+  plain: "bg-surface border-line text-ink",
+  inverted: "forest-band bg-primary-900 border-primary-700 text-cream",
+  clay: "bg-clay-100 border-clay-200 text-clay-700",
+};
+---
+
+<div
+  class:list={[
+    "rounded-2xl border p-[var(--space-stack)] shadow-leaf-sm transition-shadow duration-[var(--dur-base)] ease-out-soft hover:shadow-leaf",
+    VARIANT[variant],
+    className,
+  ]}
+>
+  <slot />
+</div>

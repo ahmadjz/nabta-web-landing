@@ -1,0 +1,24 @@
+---
+/**
+ * The Nabta wordmark (LVR-02). Renders the brand name in the display face; the
+ * Arabic↔Latin face-swap is automatic via `html[dir]` + the `.font-display` rule
+ * in global.css. The text is the dict `siteName` (نبتة / Nabta) — the single brand
+ * source of truth.
+ *
+ * Keep this OUT of any `transition:persist` island (LVR-03): a persisted wordmark
+ * could otherwise show the wrong face after an ar↔en swap.
+ */
+import { getDict, type Locale } from "../i18n";
+
+interface Props {
+  locale: Locale;
+  class?: string;
+}
+
+const { locale, class: className = "" } = Astro.props;
+const text = getDict(locale).siteName;
+---
+
+<span class:list={["font-display font-semibold leading-none", className]}>
+  {text}
+</span>

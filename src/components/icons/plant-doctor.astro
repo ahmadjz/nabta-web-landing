@@ -1,0 +1,26 @@
+---
+/** Line-art plant-doctor icon (LVR-02) — a leaf with a care "+" mark. 24×24,
+ *  `currentColor` stroke. aria-hidden, intrinsic-dimensioned, no a11y role. */
+interface Props {
+  class?: string;
+}
+const { class: className = "" } = Astro.props;
+---
+
+<svg
+  class={className}
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="1.6"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+  aria-hidden="true"
+  focusable="false"
+  xmlns="http://www.w3.org/2000/svg"
+>
+  <path d="M11 20c-5 0-8-3-8-8 5 0 8 3 8 8Z"></path>
+  <path d="M13 20c5 0 8-3 8-8-5 0-8 3-8 8Z"></path>
+  <path d="M12 20v-7"></path>
+  <path d="M16 5h-3V2h-2v3H8v2h3v3h2V7h3V5Z"></path>
+</svg>

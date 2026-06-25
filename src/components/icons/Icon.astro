@@ -1,0 +1,44 @@
+---
+/**
+ * Icon dispatcher (LVR-02) — render any icon in the line-art set by name, e.g.
+ * `<Icon name="store" class="h-6 w-6" />`. Keeps call-sites from importing each
+ * icon individually. Every underlying icon is an aria-hidden decorative glyph;
+ * pair it with adjacent visible/`sr-only` text for meaning. This dispatcher only
+ * forwards to a glyph component and emits no inline SVG markup of its own.
+ */
+import Store from "./store.astro";
+import SparkleAssistant from "./sparkle-assistant.astro";
+import WateringCan from "./watering-can.astro";
+import PlantDoctor from "./plant-doctor.astro";
+import Truck from "./truck.astro";
+import Globe from "./globe.astro";
+import Mail from "./mail.astro";
+import Whatsapp from "./whatsapp.astro";
+import Phone from "./phone.astro";
+import Chevron from "./chevron.astro";
+
+const ICONS = {
+  store: Store,
+  "sparkle-assistant": SparkleAssistant,
+  "watering-can": WateringCan,
+  "plant-doctor": PlantDoctor,
+  truck: Truck,
+  globe: Globe,
+  mail: Mail,
+  whatsapp: Whatsapp,
+  phone: Phone,
+  chevron: Chevron,
+} as const;
+
+export type IconName = keyof typeof ICONS;
+
+interface Props {
+  name: IconName;
+  class?: string;
+}
+
+const { name, class: className = "" } = Astro.props;
+const Glyph = ICONS[name];
+---
+
+<Glyph class={className} />

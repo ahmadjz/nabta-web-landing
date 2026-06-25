@@ -58,5 +58,14 @@ const t = getDict(locale);
       <slot />
     </main>
     <Footer locale={locale} />
+    {
+      /* Motion machinery — bundled to same-origin /_astro (module, deferred). Both
+       re-init on `astro:page-load`, so reveals re-fire after a ClientRouter swap
+       (LVR-03). Inert until a section emits [data-reveal]/[data-count-up]. */
+    }
+    <script>
+      import "../scripts/reveal.ts";
+      import "../scripts/count-up.ts";
+    </script>
   </body>
 </html>

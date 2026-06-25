@@ -1,0 +1,67 @@
+---
+/**
+ * The shared button skin (LVR-02). Three visual variants plus a non-interactive
+ * "disabled" rendering — a `<span role="button" aria-disabled="true">` with NO
+ * href, so a disabled control is never a dead link. `DownloadButton` consumes this
+ * for its "coming soon" state, which makes the disabled rendering a load-bearing
+ * contract (marketing.test asserts `data-state="disabled"`); keep the `...rest`
+ * passthrough so its `data-download-cta`/`data-state` reach the output element.
+ *
+ *   - disabled            → <span role="button" aria-disabled="true">  (no href)
+ *   - href (+ !disabled)  → <a href>
+ *   - neither             → <button type>
+ *
+ * The focus ring is the global `:focus-visible` outline — never suppressed here.
+ */
+type Variant = "primary" | "ghost" | "clay";
+
+interface Props {
+  variant?: Variant;
+  href?: string;
+  disabled?: boolean;
+  type?: "button" | "submit";
+  class?: string;
+}
+
+const {
+  variant = "primary",
+  href,
+  disabled = false,
+  type = "button",
+  class: className = "",
+  ...rest
+} = Astro.props;
+
+const BASE =
+  "inline-flex items-center justify-center gap-3 rounded-xl px-6 py-3 text-base font-semibold transition duration-[var(--dur-fast)] ease-out-soft";
+
+const VARIANT: Record<Variant, string> = {
+  primary:
+    "bg-primary text-white shadow-leaf-sm hover:bg-primary-600 hover:shadow-leaf",
+  ghost:
+    "border border-line bg-surface text-ink hover:border-primary-200 hover:bg-primary-50",
+  clay: "bg-clay text-white shadow-clay hover:bg-clay-600",
+};
+
+const DISABLED = "cursor-not-allowed bg-surface-muted text-ink-300";
+
+const cls = [BASE, disabled ? DISABLED : VARIANT[variant], className]
+  .filter(Boolean)
+  .join(" ");
+---
+
+{
+  disabled ? (
+    <span class={cls} role="button" aria-disabled="true" {...rest}>
+      <slot />
+    </span>
+  ) : href ? (
+    <a class={cls} href={href} {...rest}>
+      <slot />
+    </a>
+  ) : (
+    <button class={cls} type={type} {...rest}>
+      <slot />
+    </button>
+  )
+}

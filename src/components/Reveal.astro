@@ -1,0 +1,40 @@
+---
+/**
+ * Scroll-reveal wrapper (LVR-02). Emits `data-reveal=<mode>` which `reveal.ts`
+ * observes, adding `.is-revealed` once the element scrolls into view. The hidden
+ * "from" state is JS-gated (`html[data-motion-ready]`), so no-JS visitors and
+ * crawlers see fully-visible content. Decorative wrappers auto-`aria-hidden`.
+ *
+ *   fade     — opacity only
+ *   slide-y  — opacity + rise
+ *   slide-x  — opacity + slide from --slide-from (RTL-aware)
+ *   stagger  — direct children ease up on a --stagger cadence
+ */
+type Mode = "fade" | "slide-y" | "slide-x" | "stagger";
+
+interface Props {
+  mode?: Mode;
+  /** Decorative-only wrapper → hidden from assistive tech. */
+  decorative?: boolean;
+  /** Element to render (default `div`). */
+  as?: string;
+  class?: string;
+}
+
+const {
+  mode = "fade",
+  decorative = false,
+  as: Tag = "div",
+  class: className = "",
+  ...rest
+} = Astro.props;
+---
+
+<Tag
+  data-reveal={mode}
+  aria-hidden={decorative ? "true" : undefined}
+  class={className}
+  {...rest}
+>
+  <slot />
+</Tag>

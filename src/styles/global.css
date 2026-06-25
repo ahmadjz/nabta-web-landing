@@ -188,3 +188,99 @@
     }
   }
 }
+
+/* ───────────────────────────────────────────────────────────────────────────
+ * LVR-TASK-02 — motion machinery + primitive helpers (co-located @layer).
+ * Consumed by the Reveal/AmbientBackdrop/Eyebrow primitives. The reveal "from"
+ * state is JS-GATED behind `html[data-motion-ready]` (reveal.ts sets the attr),
+ * so no-JS visitors, crawlers and Lighthouse always see fully-visible content —
+ * NEVER a static `[data-reveal]{opacity:0}` (R3). All transitions are transform +
+ * opacity only (compositor-friendly); horizontal variants slide via
+ * translateX(var(--slide-from)) so there is no literal sign anywhere (RTL mirrors
+ * automatically). The global reduce-motion block above already collapses every
+ * duration, so none of this needs to re-handle prefers-reduced-motion.
+ * ─────────────────────────────────────────────────────────────────────────── */
+@layer components {
+  /* Eyebrow kicker — uppercases the Latin face; Arabic has no letter case, so the
+     transform + the Latin tracking are reset under html[dir=rtl]. Pairs with the
+     `text-eyebrow` utility (which carries the size + letter-spacing token). */
+  .u-eyebrow {
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+  html[dir="rtl"] .u-eyebrow {
+    text-transform: none;
+    letter-spacing: normal;
+  }
+
+  /* ── Scroll reveal — the hidden "from" state engages ONLY with JS ── */
+  html[data-motion-ready] [data-reveal] {
+    opacity: 0;
+    transition:
+      opacity var(--dur-base) var(--ease-out-soft),
+      transform var(--dur-base) var(--ease-out-soft);
+    will-change: opacity, transform;
+  }
+  html[data-motion-ready] [data-reveal="slide-y"] {
+    transform: translateY(1.5rem);
+  }
+  /* Direction-aware: slide from --slide-from (−1.5rem LTR / +1.5rem RTL) — no
+     literal translateX sign, so RTL mirrors with zero extra CSS. */
+  html[data-motion-ready] [data-reveal="slide-x"] {
+    transform: translateX(var(--slide-from));
+  }
+  html[data-motion-ready] [data-reveal].is-revealed {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* Staggered children — each direct child eases up on a --stagger cadence once
+     the container is revealed. */
+  html[data-motion-ready] [data-reveal="stagger"] {
+    opacity: 1;
+  }
+  html[data-motion-ready] [data-reveal="stagger"] > * {
+    opacity: 0;
+    transform: translateY(1rem);
+    transition:
+      opacity var(--dur-base) var(--ease-out-soft),
+      transform var(--dur-base) var(--ease-out-soft);
+  }
+  html[data-motion-ready] [data-reveal="stagger"].is-revealed > * {
+    opacity: 1;
+    transform: none;
+  }
+  html[data-motion-ready] [data-reveal="stagger"].is-revealed > *:nth-child(2) {
+    transition-delay: var(--stagger);
+  }
+  html[data-motion-ready] [data-reveal="stagger"].is-revealed > *:nth-child(3) {
+    transition-delay: calc(var(--stagger) * 2);
+  }
+  html[data-motion-ready] [data-reveal="stagger"].is-revealed > *:nth-child(4) {
+    transition-delay: calc(var(--stagger) * 3);
+  }
+  html[data-motion-ready] [data-reveal="stagger"].is-revealed > *:nth-child(5) {
+    transition-delay: calc(var(--stagger) * 4);
+  }
+  html[data-motion-ready] [data-reveal="stagger"].is-revealed > *:nth-child(6) {
+    transition-delay: calc(var(--stagger) * 5);
+  }
+
+  /* ── AmbientBackdrop drift — vertical float + rotate only (no horizontal sign).
+     Decorative; the global reduce-motion block collapses the duration to instant. */
+  @keyframes leaf-drift {
+    0%,
+    100% {
+      transform: translateY(0) rotate(0deg);
+    }
+    50% {
+      transform: translateY(-1.25rem) rotate(8deg);
+    }
+  }
+  .ambient-leaf {
+    animation-name: leaf-drift;
+    animation-timing-function: var(--ease-out-soft);
+    animation-iteration-count: infinite;
+    will-change: transform;
+  }
+}

@@ -1,0 +1,48 @@
+---
+/** Decorative mesh-gradient wash (LVR-02) — soft overlapping radial blobs in the
+ *  brand palette. Used inside AmbientBackdrop. The gradient IDs take an optional
+ *  suffix so multiple instances on one page stay unique. aria-hidden,
+ *  intrinsic-dimensioned, no a11y role. */
+interface Props {
+  class?: string;
+  /** Disambiguates the gradient IDs when rendered more than once on a page. */
+  idSuffix?: string;
+}
+const { class: className = "", idSuffix = "" } = Astro.props;
+const a = `mesh-a${idSuffix}`;
+const b = `mesh-b${idSuffix}`;
+const c = `mesh-c${idSuffix}`;
+---
+
+<svg
+  class={className}
+  viewBox="0 0 400 400"
+  preserveAspectRatio="xMidYMid slice"
+  aria-hidden="true"
+  focusable="false"
+  xmlns="http://www.w3.org/2000/svg"
+>
+  <defs>
+    <radialGradient id={a} cx="20%" cy="22%" r="60%">
+      <stop offset="0%" stop-color="var(--color-sage-100)" stop-opacity="0.9"
+      ></stop>
+      <stop offset="100%" stop-color="var(--color-sage-100)" stop-opacity="0"
+      ></stop>
+    </radialGradient>
+    <radialGradient id={b} cx="82%" cy="30%" r="55%">
+      <stop offset="0%" stop-color="var(--color-primary-100)" stop-opacity="0.8"
+      ></stop>
+      <stop offset="100%" stop-color="var(--color-primary-100)" stop-opacity="0"
+      ></stop>
+    </radialGradient>
+    <radialGradient id={c} cx="55%" cy="88%" r="60%">
+      <stop offset="0%" stop-color="var(--color-clay-100)" stop-opacity="0.7"
+      ></stop>
+      <stop offset="100%" stop-color="var(--color-clay-100)" stop-opacity="0"
+      ></stop>
+    </radialGradient>
+  </defs>
+  <rect width="400" height="400" fill={`url(#${a})`}></rect>
+  <rect width="400" height="400" fill={`url(#${b})`}></rect>
+  <rect width="400" height="400" fill={`url(#${c})`}></rect>
+</svg>

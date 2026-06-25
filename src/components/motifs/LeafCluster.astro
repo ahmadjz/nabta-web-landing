@@ -1,0 +1,24 @@
+---
+/** Decorative leaf-cluster motif (LVR-02). Tinted via `currentColor` from a
+ *  wrapper `text-*` class. aria-hidden, intrinsic-dimensioned, no a11y role. */
+interface Props {
+  class?: string;
+}
+const { class: className = "" } = Astro.props;
+---
+
+<svg
+  class={className}
+  viewBox="0 0 48 48"
+  fill="currentColor"
+  aria-hidden="true"
+  focusable="false"
+  xmlns="http://www.w3.org/2000/svg"
+>
+  <path
+    d="M24 4c-7 5-11 12-11 19 0 5 3 9 7 11 0-7 2-13 6-18-3 6-4 12-3 19 5-1 9-5 10-11 1-8-3-15-9-20Z"
+    opacity="0.9"></path>
+  <path
+    d="M14 22c-5 2-9 7-9 13 6 0 11-3 13-8-3 3-7 5-11 5 3-4 5-7 7-10Z"
+    opacity="0.55"></path>
+</svg>
