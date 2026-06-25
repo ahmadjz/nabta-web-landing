@@ -149,3 +149,53 @@ test("no Google-Fonts / analytics third-party requests shipped", () => {
     `third-party request(s) found:\n${offenders.join("\n")}`,
   );
 });
+
+// The HTML needle grep above NEVER reads bundled CSS, so a CDN `@font-face`
+// (or an `@import` to a font host) inside `_astro/*.css` would slip straight
+// past it. Self-hosted fonts are the load-bearing privacy/zero-third-party
+// guarantee (CLAUDE.md D-site-4), so prove it where the @font-face actually
+// lives: the bundled stylesheets.
+test("bundled CSS reaches no third-party host and no remote font url()", () => {
+  const bannedHosts = [
+    "fonts.googleapis.com",
+    "fonts.gstatic.com",
+    "googletagmanager.com",
+    "google-analytics.com",
+  ];
+  const offenders = [];
+  for (const file of walk(DIST, ".css")) {
+    const css = readFileSync(file, "utf8");
+    for (const host of bannedHosts) {
+      if (css.includes(host)) offenders.push(`${rel(file)} → host ${host}`);
+    }
+    // A remote @font-face / @import — url(http…), url(//…), @import url(http…).
+    for (const m of css.matchAll(/url\(\s*['"]?(?:https?:|\/\/)/g)) {
+      offenders.push(`${rel(file)} → remote ${m[0].trim()}…`);
+    }
+    if (/@import\s+(?:url\(\s*['"]?)?https?:/.test(css)) {
+      offenders.push(`${rel(file)} → remote @import`);
+    }
+  }
+  assert.deepEqual(
+    offenders,
+    [],
+    `bundled CSS reaches a third-party origin — fonts must be self-hosted:\n${offenders.join("\n")}`,
+  );
+});
+
+// The real proof the display faces are same-origin: their woff2 actually emitted
+// under dist/_astro/. (test:links / link-check only walks HTML-referenced assets,
+// never the @font-face url()s inside bundled CSS.)
+test("self-hosted display fonts (fraunces + tajawal) emitted under dist/_astro/", () => {
+  const astroDir = join(DIST, "_astro");
+  assert.ok(existsSync(astroDir), "dist/_astro/ missing — fonts not bundled");
+  const fonts = readdirSync(astroDir).filter((f) => f.endsWith(".woff2"));
+  assert.ok(
+    fonts.some((f) => /fraunces/i.test(f)),
+    `no fraunces*.woff2 under dist/_astro/ (got: ${fonts.join(", ") || "none"})`,
+  );
+  assert.ok(
+    fonts.some((f) => /tajawal/i.test(f)),
+    `no tajawal*.woff2 under dist/_astro/ (got: ${fonts.join(", ") || "none"})`,
+  );
+});

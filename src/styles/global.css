@@ -6,34 +6,185 @@
  * Deliberately NOT copied: the shadcn neutral token set, the `.dark` block, and
  * `@import "tw-animate-css"` — this marketing site has no shadcn and (for now) no
  * dark mode. If the admin re-tunes the brand green, re-snapshot + bump the SHA here.
+ *
+ * LVR-TASK-01 layers a BOTANICAL design system on top of that snapshot: the green
+ * is kept byte-identical, then sage/cream/clay/ink scales, a fluid type scale,
+ * spacing/radius/shadow/motion tokens, and the direction-aware --slide-from var are
+ * added. Everything downstream (LVR-02..09 primitives/sections/motion) consumes
+ * these. OKLCH anchors derived from the planner's hex palette (decision 4):
+ *   primary #2E7D32 · sage #8FAE7A · cream #F4F1E8 · clay #C8794F · ink #1F2937.
+ * Scales hold each anchor's hue, sliding lightness + chroma. NOTE: `--space-*`,
+ * `--dur-*`, `--stagger` and the `--text-*--*` companions are not Tailwind utility
+ * namespaces — they are plain design tokens consumed via `var(...)`.
  */
 @theme {
-  /* #2E7D32 — the mobile AppColors.primary; CTAs, links, focus. */
+  /* ── Brand green — #2E7D32, byte-identical to the admin snapshot ── */
   --color-primary: oklch(0.524 0.135 144.2);
   --color-ring: oklch(0.524 0.135 144.2);
+  /* Green scale (same hue) — tints up, the forest band down. primary-900 is the
+     full-bleed forest CTA band; white text + focus ring stay AA-visible on it. */
+  --color-primary-50: oklch(0.971 0.018 144.2);
+  --color-primary-100: oklch(0.938 0.038 144.2);
+  --color-primary-200: oklch(0.882 0.064 144.2);
+  --color-primary-300: oklch(0.802 0.094 144.2);
+  --color-primary-600: oklch(0.47 0.128 144.2);
+  --color-primary-700: oklch(0.41 0.11 144.2);
+  --color-primary-900: oklch(0.285 0.072 144.2);
 
+  /* ── Sage — #8FAE7A, the soft secondary green ── */
+  --color-sage: oklch(0.714 0.08 133.2);
+  --color-sage-100: oklch(0.94 0.03 133.2);
+  --color-sage-200: oklch(0.882 0.05 133.2);
+  --color-sage-700: oklch(0.47 0.066 133.2);
+
+  /* ── Cream — #F4F1E8, the warm paper background ── */
+  --color-cream: oklch(0.958 0.012 91.5);
+  --color-cream-50: oklch(0.978 0.008 91.5);
+  --color-cream-deep: oklch(0.928 0.018 91.5);
+
+  /* ── Clay — #C8794F, the terracotta accent ── */
+  --color-clay: oklch(0.653 0.114 47.9);
+  --color-clay-100: oklch(0.928 0.03 47.9);
+  --color-clay-200: oklch(0.872 0.052 47.9);
+  --color-clay-600: oklch(0.598 0.118 47.9);
+  --color-clay-700: oklch(0.52 0.104 47.9);
+
+  /* ── Ink — #1F2937, body text + headings ── */
+  --color-ink: oklch(0.278 0.03 256.8);
+  --color-ink-700: oklch(0.372 0.03 256.8);
+  --color-ink-500: oklch(0.52 0.028 256.8);
+  --color-ink-300: oklch(0.68 0.022 256.8);
+
+  /* ── Surfaces + hairlines ── */
+  --color-surface: oklch(1 0 0);
+  --color-surface-muted: oklch(0.968 0.01 91.5);
+  --color-line: oklch(0.908 0.01 133.2);
+
+  /* ── Fonts ──
+     Display (Latin): Fraunces Variable. Display (Arabic): Tajawal. Body: Cairo.
+     All self-hosted via @fontsource (see Base.astro) — never a Google-Fonts CDN. */
+  --font-display: "Fraunces Variable", "Fraunces", Georgia, serif;
+  --font-display-ar: "Tajawal", "Cairo", sans-serif;
+  --font-sans:
+    "Cairo", "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial,
+    "Noto Sans Arabic", sans-serif;
+
+  /* ── Type scale — fluid clamp() for display→lead; paired line-height, and
+     letter-spacing on the display/heading/eyebrow tiers. ── */
+  --text-display: clamp(2.75rem, 1.85rem + 4.5vw, 5rem);
+  --text-display--line-height: 1.02;
+  --text-display--letter-spacing: -0.02em;
+  --text-h1: clamp(2.25rem, 1.65rem + 3vw, 3.75rem);
+  --text-h1--line-height: 1.08;
+  --text-h1--letter-spacing: -0.018em;
+  --text-h2: clamp(1.75rem, 1.4rem + 1.75vw, 2.75rem);
+  --text-h2--line-height: 1.14;
+  --text-h2--letter-spacing: -0.014em;
+  --text-h3: clamp(1.35rem, 1.2rem + 0.75vw, 1.75rem);
+  --text-h3--line-height: 1.22;
+  --text-h3--letter-spacing: -0.01em;
+  --text-lead: clamp(1.125rem, 1.04rem + 0.42vw, 1.375rem);
+  --text-lead--line-height: 1.6;
+  --text-body: 1rem;
+  --text-body--line-height: 1.7;
+  --text-small: 0.875rem;
+  --text-small--line-height: 1.6;
+  --text-eyebrow: 0.8125rem;
+  --text-eyebrow--line-height: 1.4;
+  --text-eyebrow--letter-spacing: 0.14em;
+
+  /* ── Spacing + editorial containers (plain tokens, consumed via var()) ── */
+  --space-section-y: clamp(4rem, 2.4rem + 8vw, 8rem);
+  --space-section-y-sm: clamp(2.5rem, 1.8rem + 3.5vw, 4.5rem);
+  --space-stack: 1.5rem;
+  --space-gutter: clamp(1rem, 0.6rem + 2vw, 2rem);
+  --container-editorial: 72rem;
+  --container-prose: 44rem;
+
+  /* ── Radius — keep the snapshot base, add the larger + organic blob steps ── */
   --radius: 0.625rem;
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
+  --radius-xl: 1.25rem;
+  --radius-2xl: 1.75rem;
+  --radius-blob: 38% 62% 63% 37% / 41% 44% 56% 59%;
 
-  /* Self-hosted Cairo (Arabic + Latin) — weights imported in Base.astro from the
-     @fontsource package, NOT a Google-Fonts CDN (the "zero third-party requests"
-     rule). System fonts back it up before the woff2 loads. */
-  --font-sans:
-    "Cairo", "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial,
-    "Noto Sans Arabic", sans-serif;
+  /* ── Shadows — green/clay-tinted "leaf" elevation (not neutral black) ── */
+  --shadow-leaf-sm: 0 1px 2px 0 oklch(0.524 0.135 144.2 / 0.1);
+  --shadow-leaf:
+    0 8px 24px -8px oklch(0.524 0.135 144.2 / 0.18),
+    0 2px 6px -2px oklch(0.524 0.135 144.2 / 0.12);
+  --shadow-leaf-lg:
+    0 24px 60px -16px oklch(0.524 0.135 144.2 / 0.24),
+    0 8px 20px -8px oklch(0.524 0.135 144.2 / 0.16);
+  --shadow-clay: 0 12px 32px -10px oklch(0.653 0.114 47.9 / 0.28);
+
+  /* ── Motion — eases, durations, reveal stagger ── */
+  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --dur-fast: 180ms;
+  --dur-base: 420ms;
+  --dur-slow: 720ms;
+  --stagger: 90ms;
 }
 
 @layer base {
   html {
     font-family: var(--font-sans);
+    /* Cheap smooth-scroll; the reduce-motion block below resets it to auto. */
+    scroll-behavior: smooth;
   }
   body {
     @apply bg-white text-neutral-900;
   }
+
+  /* Direction-aware horizontal motion (R7): every reveal slides via
+     translateX(var(--slide-from)) so there is NO literal translateX sign in the
+     codebase — RTL mirrors automatically. */
+  [dir="ltr"] {
+    --slide-from: -1.5rem;
+  }
+  [dir="rtl"] {
+    --slide-from: 1.5rem;
+  }
+
+  /* Display-face helper. The Tailwind `--font-display` token also generates a
+     `.font-display` utility; this base rule is the explicit source-of-truth. */
+  .font-display {
+    font-family: var(--font-display);
+  }
+  /* Document-level Arabic face-swap — scoped to html[dir=rtl] (NOT any-ancestor
+     [dir=rtl]) so a local dir="ltr" island (e.g. an email node) can't flip an
+     Arabic heading to a Latin face. Reset transform/tracking so the Latin display
+     styling never leaks into Arabic. */
+  html[dir="rtl"] .font-display {
+    font-family: var(--font-display-ar);
+    text-transform: none;
+    letter-spacing: normal;
+  }
+
   :focus-visible {
     outline: 2px solid var(--color-ring);
     outline-offset: 2px;
+  }
+  /* On the full-bleed forest band the brand-green ring would vanish — switch it
+     to cream so focus stays visible against bg-primary-900. */
+  .bg-primary-900 :focus-visible,
+  .forest-band :focus-visible {
+    outline-color: var(--color-cream);
+  }
+
+  /* Global reduce-motion override (R1) — honours the OS setting for everyone:
+     animations/transitions collapse to ~instant and smooth-scroll is disabled. */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.001ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.001ms !important;
+      scroll-behavior: auto !important;
+    }
   }
 }

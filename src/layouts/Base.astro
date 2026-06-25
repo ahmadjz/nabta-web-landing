@@ -1,9 +1,19 @@
 ---
 import "../styles/global.css";
-// Self-hosted Cairo (no Google-Fonts CDN). Vite bundles the woff2 into _astro/
-// and base-prefixes the URLs automatically.
-import "@fontsource/cairo/400.css";
-import "@fontsource/cairo/700.css";
+// Self-hosted fonts (no Google-Fonts CDN). Vite bundles the woff2 into _astro/
+// and base-prefixes the URLs automatically. Subset-scoped (arabic-*/latin-*) keeps
+// the payload down; @fontsource ships font-display: swap by default — keep it.
+// Body: Cairo (ar+latin). Display: Fraunces Variable (Latin) + Tajawal (Arabic).
+import "@fontsource/cairo/arabic-400.css";
+import "@fontsource/cairo/arabic-500.css";
+import "@fontsource/cairo/arabic-700.css";
+import "@fontsource/cairo/latin-400.css";
+import "@fontsource/cairo/latin-500.css";
+import "@fontsource/cairo/latin-700.css";
+import "@fontsource-variable/fraunces"; // Latin display (variable weight axis)
+import "@fontsource/tajawal/arabic-500.css";
+import "@fontsource/tajawal/arabic-700.css";
+import "@fontsource/tajawal/arabic-800.css";
 
 import { DIR, getDict, type Locale } from "../i18n";
 import BaseHead from "../components/BaseHead.astro";
