@@ -15,6 +15,7 @@ import "@fontsource/tajawal/arabic-500.css";
 import "@fontsource/tajawal/arabic-700.css";
 import "@fontsource/tajawal/arabic-800.css";
 
+import { ClientRouter } from "astro:transitions";
 import { DIR, getDict, type Locale } from "../i18n";
 import BaseHead from "../components/BaseHead.astro";
 import Header from "../components/Header.astro";
@@ -45,6 +46,16 @@ const t = getDict(locale);
       description={description}
       noindex={noindex}
     />
+    {
+      /* Client-side routing — fade only (Astro's default cross-page transition;
+       NO `transition:animate="slide"` anywhere, so there is no directional/RTL-
+       unsafe page slide). It makes `astro:page-load`/`astro:before-swap` fire on
+       every navigation, which is what re-arms reveal.ts/count-up.ts after a swap
+       (LVR-03). Under prefers-reduced-motion the router skips the animation. The
+       Header/Wordmark are deliberately NOT `transition:persist` (a persisted RTL
+       header / wrong-face Wordmark on an LTR page is the failure — H6). */
+    }
+    <ClientRouter />
   </head>
   <body class="flex min-h-screen flex-col antialiased">
     <a
@@ -54,7 +65,12 @@ const t = getDict(locale);
       {t.skipToContent}
     </a>
     <Header locale={locale} pageKey={pageKey} />
-    <main id="main" class="flex-1">
+    {
+      /* tabindex="-1" makes the skip-link target focusable: activating the
+       skip-link moves focus here (WCAG 2.4.1), and this must survive a
+       ClientRouter swap — asserted by the preview-smoke headless leg (LVR-03). */
+    }
+    <main id="main" tabindex="-1" class="flex-1">
       <slot />
     </main>
     <Footer locale={locale} />

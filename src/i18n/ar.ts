@@ -217,6 +217,17 @@ export const ar = {
       ],
     },
   },
+  /**
+   * Site-chrome strings (LVR-03 Header rebuild). `langNavLabel` names the header's
+   * language-switch `<nav>` landmark (the footer's legal `<nav>` is named by
+   * `footer.legal`), so a screen-reader user can tell the two nav regions apart.
+   * The toggle control itself takes NO aria-label — its accessible name is the
+   * visible endonym (English / العربية), so accessible-name == visible-text and the
+   * axe `label-content-name-mismatch` rule stays clean.
+   */
+  header: {
+    langNavLabel: "تبديل اللغة",
+  },
   footer: {
     legal: "روابط قانونية",
     contact: "تواصل معنا",

@@ -201,6 +201,9 @@ export const en: Dict = {
       ],
     },
   },
+  header: {
+    langNavLabel: "Switch language",
+  },
   footer: {
     legal: "Legal",
     contact: "Contact us",

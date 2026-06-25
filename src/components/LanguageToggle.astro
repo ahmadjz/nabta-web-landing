@@ -1,7 +1,20 @@
 ---
+/**
+ * Language toggle (LVR-03 pill rebuild). A `rounded-full` pill: an aria-hidden
+ * `globe` glyph + the target locale's ENDONYM (English / العربية). The counterpart
+ * URL still comes from the SAME page-pair map the hreflang alternates use, so the
+ * toggle and the `<link rel=alternate>` set can never disagree (wiring unchanged).
+ *
+ * No `aria-label` on the link: its accessible name is the visible endonym, so
+ * accessible-name == visible-text and axe `label-content-name-mismatch` stays
+ * clean. `lang={target}` tags the endonym in its own language. `data-language-
+ * toggle` is the stable hook the preview-smoke headless leg clicks to assert the
+ * post-swap `dir`/`lang` flip (LVR-03).
+ */
 import { getDict, otherLocale, type Locale } from "../i18n";
 import { withBase } from "../lib/base";
 import { pathFor } from "../i18n/page-pairs";
+import Icon from "./icons/Icon.astro";
 
 interface Props {
   locale: Locale;
@@ -24,7 +37,9 @@ const counterpartPath =
   hreflang={target}
   rel="alternate"
   lang={target}
-  class="text-sm font-medium text-neutral-700 underline-offset-4 hover:text-primary hover:underline"
+  data-language-toggle
+  class="inline-flex items-center gap-2 rounded-full border border-sage-200 bg-surface px-3 py-1.5 text-small font-medium text-ink-700 transition duration-[var(--dur-fast)] ease-out-soft hover:border-primary-200 hover:bg-primary-50 hover:text-primary-700"
 >
-  {t.switchToOther}
+  <Icon name="globe" class="h-4 w-4 text-sage-700" />
+  <span>{t.switchToOther}</span>
 </a>

@@ -1,6 +1,16 @@
 ---
+/**
+ * Site header (LVR-03): a sticky, translucent, blurred bar carrying the brand
+ * Wordmark and the language-toggle pill.
+ *
+ * It is deliberately NOT `transition:persist` across the ar↔en toggle — that nav is
+ * the one that flips `dir`/`lang`, and a persisted RTL header (or a persisted
+ * `.font-display` Wordmark stuck on the wrong face) on an LTR page is THE failure
+ * (H6). Re-rendering per page keeps `dir`/lang and the Wordmark face always correct.
+ */
 import { getDict, type Locale } from "../i18n";
 import { withBase } from "../lib/base";
+import Wordmark from "./Wordmark.astro";
 import LanguageToggle from "./LanguageToggle.astro";
 
 interface Props {
@@ -13,18 +23,24 @@ const t = getDict(locale);
 const homePath = locale === "ar" ? "/" : "/en/";
 ---
 
-<header class="border-b border-neutral-200">
+<header
+  class="sticky top-0 z-40 border-b border-line bg-surface/85 backdrop-blur supports-[backdrop-filter]:bg-surface/75"
+>
   <div
-    class="mx-auto flex max-w-5xl items-center justify-between gap-4 px-4 py-3"
+    class="mx-auto flex max-w-editorial items-center justify-between gap-4 px-[var(--space-gutter)] py-3"
   >
+    {
+      /* Brand → home. aria-label adds "Home" context; it still CONTAINS the visible
+        Wordmark text (siteName), so axe label-content-name-mismatch stays clean. */
+    }
     <a
       href={withBase(homePath)}
-      class="text-lg font-bold text-primary"
-      aria-label={t.siteName}
+      class="inline-flex items-center rounded-md"
+      aria-label={`${t.siteName} — ${t.nav.home}`}
     >
-      {t.siteName}
+      <Wordmark locale={locale} class="text-h3 text-primary-900" />
     </a>
-    <nav class="flex items-center gap-4">
+    <nav aria-label={t.header.langNavLabel}>
       <LanguageToggle locale={locale} pageKey={pageKey} />
     </nav>
   </div>

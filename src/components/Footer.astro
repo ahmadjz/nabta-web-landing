@@ -1,8 +1,25 @@
 ---
+/**
+ * Site footer (LVR-03 editorial rebuild): a multi-column band on `bg-cream` with a
+ * thin top `BlobDivider` and a faint `VineFlourish` watermark. The content is
+ * wrapped in `<Reveal>` so the page carries at least one `[data-reveal]` target —
+ * the preview-smoke headless leg scrolls it into view to prove reveals re-fire
+ * after a ClientRouter swap (LVR-03). The from-state is JS-gated, so no-JS /
+ * crawler / Lighthouse always see the footer fully visible.
+ *
+ * Wiring UNCHANGED from the scaffold: legal links still derive from `LEGAL_PAIRS`
+ * (the same page-pair source the toggle + hreflang use) and the contact address is
+ * a `dir="ltr"` `mailto:` island — kept OFF `.font-display` (per LVR-01) so a Latin
+ * email never picks up the Arabic display face.
+ */
 import { getDict, type Locale } from "../i18n";
 import { withBase } from "../lib/base";
 import { LEGAL_PAIRS } from "../i18n/page-pairs";
 import { CONTACT_EMAIL } from "../config";
+import Wordmark from "./Wordmark.astro";
+import Reveal from "./Reveal.astro";
+import BlobDivider from "./motifs/BlobDivider.astro";
+import VineFlourish from "./motifs/VineFlourish.astro";
 
 interface Props {
   locale: Locale;
@@ -13,31 +30,49 @@ const t = getDict(locale);
 const year = new Date().getFullYear();
 
 // Legal links derive from the page-pair map (the same source the toggle/hreflang
-// use). The target page files land in SITE-03; these stable URLs are pinned now.
+// use), so an alternate can never dangle.
 const legalLinks = LEGAL_PAIRS.map((pair) => ({
   href: withBase(pair[locale]),
   label: t.nav[pair.key as keyof typeof t.nav],
 }));
 ---
 
-<footer class="mt-16 border-t border-neutral-200 bg-neutral-50">
+<footer
+  class="relative isolate mt-[var(--space-section-y-sm)] bg-cream text-ink"
+>
+  {
+    /* Thin organic top edge — cream-tinted wave rising into the section above. */
+  }
   <div
-    class="mx-auto flex max-w-5xl flex-col gap-6 px-4 py-10 sm:flex-row sm:items-start sm:justify-between"
+    class="pointer-events-none absolute inset-x-0 top-0 -z-10 -translate-y-full text-cream"
+    aria-hidden="true"
   >
-    <div>
-      <p class="text-lg font-bold text-primary">{t.siteName}</p>
-      <p class="mt-1 text-sm text-neutral-600">{t.tagline}</p>
+    <BlobDivider class="block h-5 w-full" />
+  </div>
+
+  {/* Faint botanical watermark, bottom-end corner; mirrors in RTL. */}
+  <VineFlourish
+    class="pointer-events-none absolute bottom-8 end-0 -z-10 h-24 w-48 text-sage-700 opacity-10 rtl:-scale-x-100"
+  />
+
+  <Reveal
+    mode="fade"
+    class="relative mx-auto flex max-w-editorial flex-col gap-8 px-[var(--space-gutter)] py-[var(--space-section-y-sm)] sm:flex-row sm:items-start sm:justify-between"
+  >
+    <div class="max-w-xs">
+      <Wordmark locale={locale} class="text-h3 text-primary-900" />
+      <p class="mt-2 text-small text-ink-500">{t.tagline}</p>
     </div>
 
     <nav aria-label={t.footer.legal}>
-      <p class="text-sm font-semibold text-neutral-900">{t.footer.legal}</p>
-      <ul class="mt-2 space-y-1">
+      <p class="text-small font-semibold text-ink">{t.footer.legal}</p>
+      <ul class="mt-3 space-y-2">
         {
           legalLinks.map((link) => (
             <li>
               <a
                 href={link.href}
-                class="text-sm text-neutral-700 underline-offset-4 hover:text-primary hover:underline"
+                class="text-small text-ink-700 underline-offset-4 transition-colors duration-[var(--dur-fast)] hover:text-primary-700 hover:underline"
               >
                 {link.label}
               </a>
@@ -48,19 +83,21 @@ const legalLinks = LEGAL_PAIRS.map((pair) => ({
     </nav>
 
     <div>
-      <p class="text-sm font-semibold text-neutral-900">{t.footer.contact}</p>
+      <p class="text-small font-semibold text-ink">{t.footer.contact}</p>
       <a
         href={`mailto:${CONTACT_EMAIL}`}
         dir="ltr"
-        class="mt-2 inline-block text-sm text-neutral-700 underline-offset-4 hover:text-primary hover:underline"
+        class="mt-3 inline-block text-small text-ink-700 underline-offset-4 transition-colors duration-[var(--dur-fast)] hover:text-primary-700 hover:underline"
       >
         {CONTACT_EMAIL}
       </a>
     </div>
-  </div>
+  </Reveal>
 
-  <div class="border-t border-neutral-200 px-4 py-4">
-    <p class="mx-auto max-w-5xl text-xs text-neutral-600">
+  <div class="relative border-t border-line">
+    <p
+      class="mx-auto max-w-editorial px-[var(--space-gutter)] py-4 text-eyebrow text-ink-500"
+    >
       © {year}
       {t.siteName}. {t.footer.rights}
     </p>

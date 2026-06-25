@@ -56,6 +56,41 @@ test("ar + en home routes were emitted", () => {
   );
 });
 
+// LVR-03: ClientRouter is the FIRST runtime JS on this zero-JS site. Prove every
+// emitted `<script src>` is same-origin + base-prefixed (a bare-/path script src
+// would 404 on the GitHub-Pages sub-path) and that the script-src COUNT stays
+// bounded — a backstop against runaway script injection. The bound allows the
+// ClientRouter runtime + a potentially-externalized reveal/count-up bundle + the
+// prefetch runtime + headroom; today only the ClientRouter chunk is external (the
+// motion bundle is small enough that Astro inlines it).
+test("every <script src> is same-origin, base-prefixed, and the count is bounded", () => {
+  const MAX_SCRIPT_SRC = 4;
+  for (const page of ["index.html", join("en", "index.html")]) {
+    const html = readFileSync(join(DIST, page), "utf8");
+    const srcs = [...html.matchAll(/<script\b[^>]*\bsrc="([^"]*)"/gi)].map(
+      (m) => m[1],
+    );
+    assert.ok(
+      srcs.length >= 1,
+      `${page}: expected at least the ClientRouter runtime <script src>`,
+    );
+    assert.ok(
+      srcs.length <= MAX_SCRIPT_SRC,
+      `${page}: ${srcs.length} <script src> exceeds the bound ${MAX_SCRIPT_SRC}:\n${srcs.join("\n")}`,
+    );
+    for (const src of srcs) {
+      assert.ok(
+        !/^https?:/.test(src) && !src.startsWith("//"),
+        `${page}: cross-origin <script src>: ${src}`,
+      );
+      assert.ok(
+        src.startsWith(BASE),
+        `${page}: <script src> not base-prefixed: ${src}`,
+      );
+    }
+  }
+});
+
 test("every internal href/src is base-prefixed (no bare /...)", () => {
   const offenders = [];
   for (const file of walk(DIST, ".html")) {

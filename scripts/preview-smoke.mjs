@@ -1,13 +1,19 @@
-// Preview-SERVED smoke check (SITE-01). Boots `astro preview` (which honours
-// `base`, unlike `astro dev` which serves at root and would pass while production
-// 404s) and asserts the sub-path contract over HTTP. This is the harness the later
-// tasks extend — SITE-02/03 add an internal link-check + Lighthouse run against the
-// same running preview server.
+// Preview-SERVED smoke check (SITE-01, extended in LVR-03). Boots `astro preview`
+// (which honours `base`, unlike `astro dev` which serves at root and would pass
+// while production 404s) and asserts the sub-path contract over HTTP. LVR-03 adds a
+// HEADLESS-BROWSER leg (puppeteer-core driving the system Chrome — dev-only, no
+// runtime third-party) that owns the ClientRouter risk surface: this is the FIRST
+// runtime JS on a zero-JS site and the only nav that crosses locales, so its
+// console/dir/focus/same-origin/reveal/reduce-motion regressions are gated RED here.
 //
-// Requires a prior `npm run build`. Exits non-zero on any failed check.
+// Requires a prior `npm run build`. Exits non-zero on any failed check. The headless
+// leg SKIPS (does not fail) when no Chrome binary is found, so the HTTP contract
+// still gates in a Chrome-less CI; locally (Chrome present) the full leg runs.
 
 import { spawn } from "node:child_process";
 import { setTimeout as sleep } from "node:timers/promises";
+import { existsSync } from "node:fs";
+import puppeteer from "puppeteer-core";
 
 const HOST = "127.0.0.1";
 const PORT = 4321;
@@ -31,6 +37,248 @@ async function waitForReady(url, attempts = 60) {
   throw new Error(`preview server never came up at ${url}`);
 }
 
+// ── Chrome discovery for the headless leg ────────────────────────────────────
+// Drives a system Chrome via puppeteer-CORE (no bundled browser download — the
+// dep stays dev-only like sharp). Honours the same env overrides the Lighthouse
+// tooling uses; falls back to the common system paths.
+function findChrome() {
+  const candidates = [
+    process.env.PUPPETEER_EXECUTABLE_PATH,
+    process.env.CHROME_PATH,
+    "/usr/bin/google-chrome",
+    "/usr/bin/google-chrome-stable",
+    "/usr/bin/chromium",
+    "/usr/bin/chromium-browser",
+    "/snap/bin/chromium",
+  ].filter(Boolean);
+  return candidates.find((p) => existsSync(p)) ?? null;
+}
+
+/** Resolve true once `fn` holds in the page, false if it times out (no throw). */
+async function waitOk(page, fn, timeout = 8000) {
+  try {
+    await page.waitForFunction(fn, { timeout });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+// ── The headless-browser leg (LVR-03) ────────────────────────────────────────
+async function headlessLeg() {
+  const chromePath = findChrome();
+  if (!chromePath) {
+    console.warn(
+      "⚠ headless leg SKIPPED: no Chrome binary found (set CHROME_PATH / PUPPETEER_EXECUTABLE_PATH). HTTP sub-path checks still ran.",
+    );
+    return;
+  }
+
+  const browser = await puppeteer.launch({
+    executablePath: chromePath,
+    headless: true,
+    args: [
+      "--no-sandbox",
+      "--disable-setuid-sandbox",
+      "--disable-dev-shm-usage",
+    ],
+  });
+
+  try {
+    // ── Page A: console / swaps / skip-link / same-origin / reveals ──────────
+    const page = await browser.newPage();
+    const consoleErrors = [];
+    const pageErrors = [];
+    const requests = [];
+    page.on("console", (m) => {
+      if (m.type() === "error") consoleErrors.push(m.text());
+    });
+    page.on("pageerror", (e) => pageErrors.push(String(e)));
+    page.on("request", (r) => requests.push(r.url()));
+
+    // Direct loads of BOTH locale homes (initial-load console-error capture; the
+    // static Lighthouse run never triggers a swap, so this is the only thing that
+    // catches a swap-time throw too — captured below across the swap sequence).
+    await page.goto(`${ORIGIN}${BASE}`, { waitUntil: "networkidle0" });
+    await page.goto(`${ORIGIN}${BASE}en/`, { waitUntil: "networkidle0" });
+    // Back to ar home to start the swap sequence.
+    await page.goto(`${ORIGIN}${BASE}`, { waitUntil: "networkidle0" });
+    await waitOk(page, () =>
+      document.documentElement.hasAttribute("data-motion-ready"),
+    );
+
+    const initial = await page.evaluate(() => ({
+      lang: document.documentElement.lang,
+      dir: document.documentElement.dir,
+    }));
+    record(
+      "headless: ar home is <html lang=ar dir=rtl>",
+      initial.lang === "ar" && initial.dir === "rtl",
+      JSON.stringify(initial),
+    );
+
+    // ── Swap forward ar→en via the toggle (no full navigation) ───────────────
+    await page.click("[data-language-toggle]");
+    const swappedToEn = await waitOk(
+      page,
+      () => document.documentElement.lang === "en",
+    );
+    const en = await page.evaluate(() => {
+      const brand = [...document.querySelectorAll("header a")].find(
+        (a) => !a.hasAttribute("data-language-toggle"),
+      );
+      const toggle = document.querySelector("[data-language-toggle]");
+      return {
+        lang: document.documentElement.lang,
+        dir: document.documentElement.dir,
+        brandHref: brand ? new URL(brand.href).pathname : null,
+        toggleHref: toggle ? new URL(toggle.href).pathname : null,
+      };
+    });
+    record(
+      "headless: post-swap is <html lang=en dir=ltr> (C1/H6)",
+      swappedToEn && en.lang === "en" && en.dir === "ltr",
+      JSON.stringify(en),
+    );
+    record(
+      "headless: post-swap header home href is /en/ (not stale)",
+      en.brandHref === `${BASE}en/`,
+      String(en.brandHref),
+    );
+    record(
+      "headless: post-swap toggle targets ar home (not stale)",
+      en.toggleHref === BASE,
+      String(en.toggleHref),
+    );
+
+    // ── Reveals re-fire after the swap (H1) ──────────────────────────────────
+    // data-motion-ready is re-set by reveal.ts's astro:page-load init (the new
+    // page's <html> arrives WITHOUT it), proving the re-init ran; then the footer
+    // [data-reveal], scrolled into view, gains .is-revealed.
+    const reArmed = await waitOk(page, () =>
+      document.documentElement.hasAttribute("data-motion-ready"),
+    );
+    await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+    const revealed = await waitOk(
+      page,
+      () => {
+        const el = document.querySelector("[data-reveal]");
+        return !!el && el.classList.contains("is-revealed");
+      },
+      6000,
+    );
+    record(
+      "headless: [data-reveal] re-fires after swap (footer reveals on scroll, H1)",
+      reArmed && revealed,
+      `reArmed=${reArmed} revealed=${revealed}`,
+    );
+    await page.evaluate(() => window.scrollTo(0, 0));
+
+    // ── Skip-link focus survives the swap (C1 / WCAG 2.4.1) ──────────────────
+    await page.evaluate(() => {
+      if (document.activeElement instanceof HTMLElement)
+        document.activeElement.blur();
+    });
+    await page.keyboard.press("Tab"); // skip-link is the first focusable
+    const skipFocused = await page.evaluate(
+      () => document.activeElement?.getAttribute("href") === "#main",
+    );
+    record(
+      "headless: skip-link is the first focusable after swap",
+      skipFocused,
+    );
+    await page.keyboard.press("Enter"); // activate → fragment nav → focus #main
+    const mainFocused = await page.evaluate(
+      () => document.activeElement?.id === "main",
+    );
+    record(
+      "headless: skip-link moves focus to #main after swap (C1/WCAG 2.4.1)",
+      mainFocused,
+    );
+
+    // ── Hover the toggle to exercise prefetch (prefetchAll:true is the default
+    // with <ClientRouter />; default strategy is hover) — its request must be
+    // base-prefixed, asserted below with the rest. ───────────────────────────
+    await page.hover("[data-language-toggle]");
+    await sleep(300);
+
+    // ── Reverse swap en→ar ───────────────────────────────────────────────────
+    await page.click("[data-language-toggle]");
+    const swappedToAr = await waitOk(
+      page,
+      () => document.documentElement.lang === "ar",
+    );
+    const ar2 = await page.evaluate(() => ({
+      lang: document.documentElement.lang,
+      dir: document.documentElement.dir,
+    }));
+    record(
+      "headless: reverse swap en→ar is <html lang=ar dir=rtl> (C1/H6)",
+      swappedToAr && ar2.lang === "ar" && ar2.dir === "rtl",
+      JSON.stringify(ar2),
+    );
+
+    // ── Runtime same-origin + base-prefixed (H3/H9) ──────────────────────────
+    // Every request (assets, prefetch, swap document fetches) must be same-origin
+    // and base-prefixed — catches a base-path mis-resolution to a bare /path. The
+    // browser's automatic /favicon.ico probe is the one allowed bare same-origin
+    // path (it is not emitted by our code).
+    const httpReqs = requests.filter((u) => /^https?:\/\//.test(u));
+    const crossOrigin = httpReqs.filter((u) => {
+      try {
+        return new URL(u).host !== `${HOST}:${PORT}`;
+      } catch {
+        return true;
+      }
+    });
+    record(
+      "headless: every runtime request is same-origin (H3/H9, zero third-party)",
+      crossOrigin.length === 0,
+      crossOrigin.slice(0, 3).join(", "),
+    );
+    const barePath = httpReqs.filter((u) => {
+      const p = new URL(u).pathname;
+      return p !== "/favicon.ico" && !p.startsWith(BASE);
+    });
+    record(
+      "headless: every runtime request is base-prefixed (no bare /path prefetch, H3)",
+      barePath.length === 0,
+      barePath.slice(0, 3).join(", "),
+    );
+
+    // ── Zero console errors across loads + swaps (H2; best-practices=100) ─────
+    record(
+      "headless: zero console errors across loads + swaps (H2)",
+      consoleErrors.length === 0 && pageErrors.length === 0,
+      [...consoleErrors, ...pageErrors].slice(0, 3).join(" | "),
+    );
+
+    await page.close();
+
+    // ── Page B: prefers-reduced-motion (C1) ──────────────────────────────────
+    const rmPage = await browser.newPage();
+    await rmPage.emulateMediaFeatures([
+      { name: "prefers-reduced-motion", value: "reduce" },
+    ]);
+    await rmPage.goto(`${ORIGIN}${BASE}`, { waitUntil: "networkidle0" });
+    await rmPage.click("[data-language-toggle]");
+    await waitOk(rmPage, () => document.documentElement.lang === "en");
+    const heroOpacity = await rmPage.evaluate(() => {
+      const h1 = document.querySelector("h1");
+      return h1 ? getComputedStyle(h1).opacity : null;
+    });
+    record(
+      "headless: reduce-motion hero <h1> opacity===1 on a swapped-in page (C1)",
+      heroOpacity === "1",
+      `opacity=${heroOpacity}`,
+    );
+    await rmPage.close();
+  } finally {
+    await browser.close();
+  }
+}
+
+// ── Boot preview + run both legs ─────────────────────────────────────────────
 const preview = spawn(
   "npm",
   ["run", "preview", "--", "--host", HOST, "--port", String(PORT)],
@@ -82,6 +330,9 @@ try {
     "robots Sitemap is absolute+base",
     robotsTxt.includes(`Sitemap: ${SITE}${BASE}sitemap-index.xml`),
   );
+
+  // 5. Headless-browser leg — ClientRouter risk surface (LVR-03).
+  await headlessLeg();
 } catch (err) {
   crashed = err;
 } finally {
