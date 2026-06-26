@@ -83,14 +83,17 @@ export const en: Dict = {
         {
           alt: "Placeholder screenshot: browsing the plant store in the Nabta app",
           caption: "Browse the store",
+          body: "Browse a range of ornamental plants with clear prices in Syrian pounds, and search by local, scientific, or English name.",
         },
         {
           alt: "Placeholder screenshot: the smart plant suggester",
           caption: "Smart suggester",
+          body: "Answer a few simple questions about space, light, watering needs, and your experience level, and the app suggests a list that suits you.",
         },
         {
           alt: "Placeholder screenshot: the plant care list and reminders",
           caption: "Care & reminders",
+          body: "Track watering and fertilizing schedules for every plant you own, with reminders that reach you on time so your plants stay healthy.",
         },
       ],
     },

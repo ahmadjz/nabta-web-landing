@@ -1,9 +1,29 @@
 ---
+/**
+ * Screenshots (LVR-TASK-06) — sticky-storytelling walkthrough. Each step is an
+ * alternating editorial row (`md:grid-cols-2`): a phone mockup on one side, a
+ * sticky copy block on the other, the side swapping every row via logical
+ * `md:order-*`. The copy column is `lg:sticky lg:top-24` (pure CSS, no JS) so it
+ * pins while the taller phone scrolls past. A long `VineTrail` runs down the START
+ * gutter behind the steps (decorative, mirrors to the END gutter under RTL).
+ *
+ * Why a RAW <section> (not the `Section` primitive): `Section` bakes in
+ * `overflow-hidden`, which turns it into a scroll container and silently disables
+ * the descendant `position: sticky`. The decorative vine instead bleeds inside its
+ * OWN absolute `overflow-hidden` clip layer — a sibling of the content, never an
+ * ancestor of the sticky copy — so the bleed is clipped AND sticky still resolves
+ * against the page viewport.
+ *
+ * CLS contract: the phone screenshot is an astro:assets `<Image>` (intrinsic
+ * width/height → no reflow), kept lazy-loaded. One placeholder asset is reused
+ * across the three slots until real screenshots land; each slot carries its own
+ * alt + caption + body.
+ */
 import { Image } from "astro:assets";
+import Reveal from "../Reveal.astro";
+import PhoneFrame from "../PhoneFrame.astro";
+import VineTrail from "../motifs/VineTrail.astro";
 import { getDict, type Locale } from "../../i18n";
-// PLACEHOLDER screenshot — astro:assets optimises it (webp, sized). One asset is
-// reused across the three slots until real app screenshots land (SITE-04/launch);
-// each slot carries its own alt + caption.
 import screenshot from "../../assets/app-screenshot-placeholder.png";
 
 interface Props {
@@ -14,31 +34,90 @@ const { locale } = Astro.props;
 const t = getDict(locale).marketing.screenshots;
 ---
 
-<section class="mx-auto max-w-5xl px-4 py-16 sm:py-20">
-  <h2 class="text-2xl font-bold text-neutral-900 sm:text-3xl">{t.heading}</h2>
-  <p class="mt-3 text-neutral-600">{t.subheading}</p>
-  <div class="mt-10 grid gap-8 sm:grid-cols-3">
-    {
-      t.shots.map((shot) => (
-        <figure class="flex flex-col items-center">
-          <div class="relative">
-            <Image
-              src={screenshot}
-              alt={shot.alt}
-              width={300}
-              height={600}
-              loading="lazy"
-              class="rounded-2xl border border-neutral-200 shadow-sm"
-            />
-            <span class="absolute start-2 top-2 rounded-full bg-neutral-900/70 px-2 py-0.5 text-xs font-medium text-white">
-              {t.placeholderBadge}
-            </span>
-          </div>
-          <figcaption class="mt-4 text-sm font-medium text-neutral-700">
-            {shot.caption}
-          </figcaption>
-        </figure>
-      ))
-    }
+<section class="relative isolate bg-surface text-ink">
+  {
+    /* Decorative vine clip layer — bleeds the trailing vine down the START gutter
+       and clips it here (absolute sibling, so it never becomes the sticky copy's
+       scroll ancestor). Mirrors to the END gutter + flips its curl under RTL. */
+  }
+  <div
+    class="pointer-events-none absolute inset-0 -z-10 overflow-hidden"
+    aria-hidden="true"
+  >
+    <VineTrail
+      class="absolute -start-16 top-1/2 hidden w-[34rem] max-w-none -translate-y-1/2 rotate-90 text-sage-200/40 lg:block [dir=rtl]:-scale-x-100"
+    />
+  </div>
+
+  <div
+    class="mx-auto max-w-editorial px-[var(--space-gutter)] py-[var(--space-section-y)]"
+  >
+    <div class="max-w-prose">
+      <Reveal
+        as="h2"
+        mode="slide-y"
+        class="text-balance font-display text-h2 font-semibold text-ink"
+      >
+        {t.heading}
+      </Reveal>
+      <Reveal mode="slide-y" class="mt-3">
+        <p class="text-lead text-ink-700">{t.subheading}</p>
+      </Reveal>
+    </div>
+
+    <div
+      class="mt-[var(--space-section-y-sm)] flex flex-col gap-[var(--space-section-y-sm)]"
+    >
+      {
+        t.shots.map((shot, i) => {
+          const phoneStart = i % 2 === 0;
+          return (
+            <div class="grid items-center gap-[var(--space-stack)] md:grid-cols-2 md:gap-12 lg:items-start">
+              {/* ── Phone mockup ─────────────────────────────────────────── */}
+              <Reveal
+                mode="slide-y"
+                class:list={[
+                  "flex justify-center",
+                  phoneStart ? "md:order-1" : "md:order-2",
+                ]}
+              >
+                <PhoneFrame>
+                  <div class="relative">
+                    <Image
+                      src={screenshot}
+                      alt={shot.alt}
+                      width={300}
+                      height={600}
+                      loading="lazy"
+                      class="block w-full"
+                    />
+                    <span class="absolute start-2 top-2 rounded-full bg-ink/70 px-2 py-0.5 text-xs font-medium text-surface">
+                      {t.placeholderBadge}
+                    </span>
+                  </div>
+                </PhoneFrame>
+              </Reveal>
+
+              {/* ── Sticky copy block ────────────────────────────────────── */}
+              <Reveal
+                mode="slide-y"
+                class:list={[
+                  "lg:sticky lg:top-24",
+                  phoneStart ? "md:order-2" : "md:order-1",
+                ]}
+              >
+                <span class="u-eyebrow text-eyebrow block text-clay-700">
+                  {`0${i + 1}`}
+                </span>
+                <h3 class="mt-2 font-display text-h3 font-semibold text-ink">
+                  {shot.caption}
+                </h3>
+                <p class="mt-3 text-body text-ink-700">{shot.body}</p>
+              </Reveal>
+            </div>
+          );
+        })
+      }
+    </div>
   </div>
 </section>
