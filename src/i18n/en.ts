@@ -124,7 +124,9 @@ export const en: Dict = {
       ],
     },
     faq: {
+      eyebrow: "Questions & answers",
       heading: "Frequently asked questions",
+      lead: "Quick answers to the most common questions about the Nabta app and how it works.",
       items: [
         {
           q: "Is the Nabta app available now?",
@@ -156,6 +158,7 @@ export const en: Dict = {
       heading: "Ready to get started with your plants?",
       body: "The Nabta app will be available on Google Play soon, followed by the App Store. Bookmark this page and come back at launch.",
       note: "Coming soon on Google Play · App Store later",
+      secondaryLabel: "Contact us",
     },
     contact: {
       heading: "Contact us",

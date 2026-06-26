@@ -1,4 +1,18 @@
 ---
+/**
+ * Contact (LVR-TASK-07) — a `mailto:`-only contact card (no form, no backend). The
+ * channels sit in a `Card` centered at `--container-prose` on the deep-cream ground.
+ * Email always renders; WhatsApp/phone render ONLY when their config constant is set
+ * (empty ⇒ omitted, never a dead `tel:`/`wa.me` link — see contact-cta.test). The
+ * email/phone anchors carry `dir="ltr"` (a Latin/number island inside RTL) and stay
+ * OFF `.font-display` so they never pick up the Arabic display face (LVR-01).
+ *
+ * `id="contact"` is the anchor target for the DownloadCTA secondary CTA — a
+ * load-bearing contract. RAW <section> because there is no `cream-deep` Section tone.
+ */
+import Card from "../Card.astro";
+import Reveal from "../Reveal.astro";
+import Icon from "../icons/Icon.astro";
 import { getDict, type Locale } from "../../i18n";
 import { CONTACT_EMAIL, CONTACT_PHONE, CONTACT_WHATSAPP } from "../../config";
 
@@ -13,37 +27,56 @@ const t = getDict(locale).marketing.contact;
 const whatsapp = CONTACT_WHATSAPP.trim();
 const phone = CONTACT_PHONE.trim();
 
-const linkClass =
-  "inline-flex items-center gap-2 rounded-md border border-neutral-200 px-4 py-2 text-sm font-medium text-neutral-800 underline-offset-4 transition hover:border-primary hover:text-primary";
+const chipClass =
+  "inline-flex items-center gap-2 rounded-full border border-line bg-surface px-4 py-2 text-small font-medium text-ink underline-offset-4 transition-colors duration-[var(--dur-fast)] ease-out-soft hover:border-primary-200 hover:text-primary-700";
 ---
 
-<section class="mx-auto max-w-3xl px-4 py-16 text-center sm:py-20">
-  <h2 class="text-2xl font-bold text-neutral-900 sm:text-3xl">{t.heading}</h2>
-  <p class="mx-auto mt-4 max-w-xl text-neutral-700">{t.body}</p>
+<section id="contact" class="relative isolate bg-cream-deep text-ink">
   <div
-    class="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:flex-wrap sm:justify-center"
+    class="mx-auto max-w-prose px-[var(--space-gutter)] py-[var(--space-section-y)]"
   >
-    <a href={`mailto:${CONTACT_EMAIL}`} dir="ltr" class={linkClass}>
-      {t.emailLabel}: {CONTACT_EMAIL}
-    </a>
-    {
-      whatsapp && (
-        <a
-          href={`https://wa.me/${whatsapp}`}
-          target="_blank"
-          rel="noopener"
-          class={linkClass}
-        >
-          {t.whatsappLabel}
+    <Card class="text-center">
+      <Reveal
+        as="h2"
+        mode="slide-y"
+        class="text-balance font-display text-h2 font-semibold text-ink"
+      >
+        {t.heading}
+      </Reveal>
+      <Reveal mode="slide-y" class="mt-3">
+        <p class="mx-auto max-w-xl text-body text-ink-700">{t.body}</p>
+      </Reveal>
+
+      <Reveal
+        mode="stagger"
+        class="mt-6 flex flex-col items-center gap-3 sm:flex-row sm:flex-wrap sm:justify-center"
+      >
+        <a href={`mailto:${CONTACT_EMAIL}`} dir="ltr" class={chipClass}>
+          <Icon name="mail" class="h-4 w-4" />
+          <span>{CONTACT_EMAIL}</span>
         </a>
-      )
-    }
-    {
-      phone && (
-        <a href={`tel:${phone}`} dir="ltr" class={linkClass}>
-          {t.phoneLabel}: {phone}
-        </a>
-      )
-    }
+        {
+          whatsapp && (
+            <a
+              href={`https://wa.me/${whatsapp}`}
+              target="_blank"
+              rel="noopener"
+              class={chipClass}
+            >
+              <Icon name="whatsapp" class="h-4 w-4" />
+              <span>{t.whatsappLabel}</span>
+            </a>
+          )
+        }
+        {
+          phone && (
+            <a href={`tel:${phone}`} dir="ltr" class={chipClass}>
+              <Icon name="phone" class="h-4 w-4" />
+              <span>{phone}</span>
+            </a>
+          )
+        }
+      </Reveal>
+    </Card>
   </div>
 </section>

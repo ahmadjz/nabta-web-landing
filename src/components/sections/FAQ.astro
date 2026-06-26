@@ -1,4 +1,19 @@
 ---
+/**
+ * FAQ (LVR-TASK-07) — two-column editorial accordion. On `lg` a
+ * `grid-cols-[1fr_1.6fr]` splits a sticky Eyebrow + display H2 + lead rail at the
+ * START from the question list at the END; below `lg` it stacks. Each row is a
+ * native `<details>` (a JS-free, keyboard-accessible accordion) styled as a
+ * `bg-surface rounded-xl` card that lifts to `shadow-leaf` + `text-primary-900` when
+ * open; the `+` marker rotates to `×` (`group-open:rotate-45`), recolored clay.
+ *
+ * RAW <section> (not the `Section` primitive) so the sticky rail isn't trapped by
+ * `Section`'s baked-in `overflow-hidden` (which would turn it into a scroll
+ * container and disable `position: sticky`). No motif bleed here → no clip layer
+ * needed.
+ */
+import Reveal from "../Reveal.astro";
+import Eyebrow from "../Eyebrow.astro";
 import { getDict, type Locale } from "../../i18n";
 
 interface Props {
@@ -9,25 +24,53 @@ const { locale } = Astro.props;
 const t = getDict(locale).marketing.faq;
 ---
 
-<section class="mx-auto max-w-3xl px-4 py-16 sm:py-20">
-  <h2 class="text-2xl font-bold text-neutral-900 sm:text-3xl">{t.heading}</h2>
-  <div class="mt-8 divide-y divide-neutral-200 border-y border-neutral-200">
-    {
-      /* Native <details> = an accessible, JS-free accordion. */
-      t.items.map((item) => (
-        <details class="group py-4">
-          <summary class="flex cursor-pointer items-center justify-between gap-4 text-base font-semibold text-neutral-900 marker:content-['']">
-            <span>{item.q}</span>
-            <span
-              aria-hidden="true"
-              class="text-primary transition-transform group-open:rotate-45"
-            >
-              +
-            </span>
-          </summary>
-          <p class="mt-3 text-sm leading-relaxed text-neutral-700">{item.a}</p>
-        </details>
-      ))
-    }
+<section class="relative isolate bg-surface text-ink">
+  <div
+    class="mx-auto max-w-editorial px-[var(--space-gutter)] py-[var(--space-section-y)]"
+  >
+    <div
+      class="grid gap-[var(--space-stack)] lg:grid-cols-[1fr_1.6fr] lg:gap-12"
+    >
+      {
+        /* ── Sticky heading rail (start) ──────────────────────────────────── */
+      }
+      <div class="lg:sticky lg:top-24 lg:self-start">
+        <Reveal mode="slide-y">
+          <Eyebrow>{t.eyebrow}</Eyebrow>
+        </Reveal>
+        <Reveal
+          as="h2"
+          mode="slide-y"
+          class="mt-4 text-balance font-display text-h2 font-semibold text-ink"
+        >
+          {t.heading}
+        </Reveal>
+        <Reveal mode="slide-y" class="mt-3">
+          <p class="max-w-prose text-lead text-ink-700">{t.lead}</p>
+        </Reveal>
+      </div>
+
+      {
+        /* ── Accordion list (end) ─────────────────────────────────────────── */
+      }
+      <Reveal mode="stagger" class="flex flex-col gap-3">
+        {
+          t.items.map((item) => (
+            <details class="group rounded-xl border border-line bg-surface px-5 py-4 shadow-leaf-sm transition-shadow duration-[var(--dur-base)] ease-out-soft open:shadow-leaf">
+              <summary class="flex cursor-pointer items-center justify-between gap-4 text-base font-semibold text-ink marker:content-[''] group-open:text-primary-900">
+                <span>{item.q}</span>
+                <span
+                  aria-hidden="true"
+                  class="shrink-0 text-2xl leading-none text-clay transition-transform duration-[var(--dur-fast)] ease-out-soft group-open:rotate-45"
+                >
+                  +
+                </span>
+              </summary>
+              <p class="mt-3 text-body text-ink-700">{item.a}</p>
+            </details>
+          ))
+        }
+      </Reveal>
+    </div>
   </div>
 </section>

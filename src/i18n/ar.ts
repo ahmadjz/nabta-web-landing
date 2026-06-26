@@ -136,7 +136,11 @@ export const ar = {
       ],
     },
     faq: {
+      /** Clay kicker above the FAQ heading (LVR-07 two-col editorial). */
+      eyebrow: "أسئلة وأجوبة",
       heading: "الأسئلة الشائعة",
+      /** Supporting lead beside the sticky heading rail. */
+      lead: "إجابات سريعة عن أكثر ما يُسأل حول تطبيق نبتة وطريقة عمله.",
       items: [
         {
           q: "هل تطبيق نبتة متاح الآن؟",
@@ -168,6 +172,8 @@ export const ar = {
       heading: "جاهز لتبدأ مع نباتاتك؟",
       body: "سيتوفّر تطبيق نبتة على Google Play قريبًا، ويليه App Store. احفظ هذه الصفحة وعُد إليها عند الإطلاق.",
       note: "قريبًا على Google Play · App Store لاحقًا",
+      /** Secondary CTA on the forest band — anchors to the contact section. */
+      secondaryLabel: "تواصل معنا",
     },
     contact: {
       heading: "تواصل معنا",
