@@ -78,6 +78,19 @@ curl -sL -o /dev/null -w "%{http_code}  https://ahmadjz.github.io$asset\n" "http
 
 Expect `200` for every page and the asset.
 
+### Motion / RTL / reduce-motion = a MANUAL browser check
+
+The curl matrix only proves the pages and assets **serve**. The redesign's runtime
+behaviour — `ClientRouter` fade transitions, scroll-reveal fire, the ambient hero
+motif drift, **`prefers-reduced-motion` collapsing to instant content**, and correct
+**Arabic RTL mirroring** — **cannot be curl'd**. CI gates it headlessly
+(`scripts/preview-smoke.mjs` + `motion-a11y.test.mjs`), but after a deploy do a quick
+**manual browser pass on the live URL**: load `…/nabta-web-landing/`, watch a section
+reveal on scroll and the hero ambience play, toggle ar↔en and confirm the layout
+mirrors (`<html dir>` flips, display face swaps), then re-load with
+`prefers-reduced-motion: reduce` (DevTools → Rendering → *Emulate CSS media feature*)
+and confirm content appears **instantly** (no fade-in, no drift). Note any finding.
+
 ## One-time setup (already done — reference only)
 
 These were applied once to bring Pages online. You don't repeat them per deploy.

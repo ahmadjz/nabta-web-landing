@@ -9,6 +9,14 @@ It is a standalone, decoupled site: **no login, no API, no analytics, no cookies
 zero third-party requests.** It shares only the green brand tokens + the ar-default
 i18n philosophy with `nabta-web-admin`.
 
+**Look & motion.** A botanical-editorial redesign on self-hosted display type
+(**Fraunces** Latin / **Tajawal** Arabic, **Cairo** body) over the brand green +
+sage/cream/clay/ink palette. Motion is in-scope: Astro **`ClientRouter`** fade page
+transitions, scroll-reveal sections, and an ambient hero motif — all bounded by the
+firm gates (**Lighthouse a11y + best-practices = 100**, zero third-party requests,
+full RTL mirroring, ar/en parity) and fully collapsed to instant content under
+**`prefers-reduced-motion`**.
+
 - **Canonical URL:** `https://ahmadjz.github.io/nabta-web-landing/`
 - **Decision:** [`nabta-docs/01-decisions/34`](../nabta-docs/01-decisions/34-customer-web-landing-only.md)
 - **Spec:** [`nabta-docs/04-features/landing-marketing-site.md`](../nabta-docs/04-features/landing-marketing-site.md)
