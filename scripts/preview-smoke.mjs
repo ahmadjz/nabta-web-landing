@@ -117,6 +117,21 @@ async function headlessLeg() {
       JSON.stringify(initial),
     );
 
+    // ── Hero <h1> is opaque at first paint EVEN with reveals armed (R4/LCP) ───
+    // data-motion-ready is set (reveal from-states are now opacity:0), yet the
+    // LCP heading must read opacity:1 — it is never a [data-reveal] target, so the
+    // Largest Contentful Paint never waits on JS. The static-HTML Lighthouse run
+    // can't prove this (it sees the no-JS DOM); only a JS-armed page can.
+    const heroArmed = await page.evaluate(() => {
+      const h1 = document.querySelector("h1");
+      return h1 ? getComputedStyle(h1).opacity : null;
+    });
+    record(
+      "headless: hero <h1> opacity===1 at first paint while reveals are armed (R4/LCP)",
+      heroArmed === "1",
+      `opacity=${heroArmed}`,
+    );
+
     // ── Swap forward ar→en via the toggle (no full navigation) ───────────────
     await page.click("[data-language-toggle]");
     const swappedToEn = await waitOk(
@@ -255,12 +270,83 @@ async function headlessLeg() {
 
     await page.close();
 
-    // ── Page B: prefers-reduced-motion (C1) ──────────────────────────────────
+    // ── Page B: prefers-reduced-motion (C1 / R1) ─────────────────────────────
+    // The source-scan (motion-a11y.test.mjs) proves the reduce-motion @media block
+    // EXISTS; this proves it WORKS — the computed animation/transition on the real
+    // reveal + drifting-motif nodes collapses to instant, and the LCP heading is
+    // opaque from first paint. A grep can't measure computed style; this is the
+    // half only a headless browser can own.
     const rmPage = await browser.newPage();
     await rmPage.emulateMediaFeatures([
       { name: "prefers-reduced-motion", value: "reduce" },
     ]);
     await rmPage.goto(`${ORIGIN}${BASE}`, { waitUntil: "networkidle0" });
+    await waitOk(rmPage, () =>
+      document.documentElement.hasAttribute("data-motion-ready"),
+    );
+
+    // Hero <h1> opaque at first paint under reduce-motion (R4 holds here too).
+    const heroFirst = await rmPage.evaluate(() => {
+      const h1 = document.querySelector("h1");
+      return h1 ? getComputedStyle(h1).opacity : null;
+    });
+    record(
+      "headless: reduce-motion hero <h1> opacity===1 at first paint (R4/C1)",
+      heroFirst === "1",
+      `opacity=${heroFirst}`,
+    );
+
+    // Every [data-reveal] + ambient motif node is motion-INERT: its computed
+    // animation is `none`/instant AND its transition is instant (the global
+    // reduce-motion `!important` block beats even the inline animation-duration on
+    // the drifting leaves). `INSTANT=1ms` admits the block's 0.001ms collapse.
+    const inert = await rmPage.evaluate(() => {
+      const durMs = (v) =>
+        Math.max(
+          0,
+          ...String(v)
+            .split(",")
+            .map((s) => {
+              s = s.trim();
+              if (s.endsWith("ms")) return parseFloat(s) || 0;
+              if (s.endsWith("s")) return (parseFloat(s) || 0) * 1000;
+              return parseFloat(s) || 0;
+            }),
+        );
+      const INSTANT = 1;
+      const probe = (els) =>
+        els.map((el) => {
+          const s = getComputedStyle(el);
+          const animOff =
+            s.animationName === "none" || durMs(s.animationDuration) <= INSTANT;
+          const transOff = durMs(s.transitionDuration) <= INSTANT;
+          return {
+            ok: animOff && transOff,
+            an: s.animationName,
+            ad: s.animationDuration,
+            td: s.transitionDuration,
+          };
+        });
+      const reveals = probe([...document.querySelectorAll("[data-reveal]")]);
+      const motifs = probe([...document.querySelectorAll(".ambient-leaf")]);
+      return { reveals, motifs };
+    });
+    record(
+      "headless: reduce-motion collapses [data-reveal] motion to instant (R1/R2)",
+      inert.reveals.length > 0 && inert.reveals.every((r) => r.ok),
+      `n=${inert.reveals.length} offenders=${JSON.stringify(
+        inert.reveals.filter((r) => !r.ok).slice(0, 2),
+      )}`,
+    );
+    record(
+      "headless: reduce-motion collapses ambient motif drift to instant (R1/R2)",
+      inert.motifs.length > 0 && inert.motifs.every((r) => r.ok),
+      `n=${inert.motifs.length} offenders=${JSON.stringify(
+        inert.motifs.filter((r) => !r.ok).slice(0, 2),
+      )}`,
+    );
+
+    // Re-assert across a swap: the swapped-in page is also reduce-motion-respecting.
     await rmPage.click("[data-language-toggle]");
     await waitOk(rmPage, () => document.documentElement.lang === "en");
     const heroOpacity = await rmPage.evaluate(() => {
