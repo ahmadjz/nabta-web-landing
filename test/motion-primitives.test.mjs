@@ -163,6 +163,46 @@ test("M6 AmbientBackdrop is out of flow (absolute|fixed) + pointer-events-none",
   );
 });
 
+// ── L3 / R4: the hero <h1> is the LCP element — never reveal-hidden at paint ──
+// The reveal "from" CSS paints `[data-reveal]` at opacity:0 once JS arms it, so a
+// [data-reveal] (or opacity-0) <h1> would defer the LARGEST CONTENTFUL PAINT until
+// JS runs. The stagger therefore animates only NON-LCP siblings (eyebrow/lead/CTA)
+// or transform/clip on the h1 — the heading itself must paint fully OPAQUE.
+test("L3 hero <h1> source is reveal-free + opaque (LCP paints instantly)", () => {
+  const text = read("src", "components", "sections", "Hero.astro");
+  const h1 = text.match(/<h1\b[^>]*>/);
+  assert.ok(h1, "Hero.astro must render an <h1> (the LCP heading)");
+  assert.ok(
+    !/data-reveal/.test(h1[0]),
+    "hero <h1> must NOT be a [data-reveal] target — its CSS from-state is opacity:0, deferring the LCP",
+  );
+  assert.ok(
+    !/\bopacity-0\b|opacity:\s*0\b/.test(h1[0]),
+    "hero <h1> must NOT start at opacity:0 — the LCP element paints fully opaque",
+  );
+});
+
+test("R4 (dist) hero <h1> renders reveal-free + opaque on both home routes", () => {
+  for (const page of ["index.html", join("en", "index.html")]) {
+    const file = join(DIST, page);
+    assert.ok(
+      existsSync(file),
+      `${page} missing — run \`npm run build\` first`,
+    );
+    const html = readFileSync(file, "utf8");
+    const h1 = html.match(/<h1\b[^>]*>/);
+    assert.ok(h1, `${page}: no <h1> in the rendered hero`);
+    assert.ok(
+      !/data-reveal/.test(h1[0]),
+      `${page}: hero <h1> is a [data-reveal] target — the LCP would paint at opacity:0`,
+    );
+    assert.ok(
+      !/\bopacity-0\b|opacity:\s*0\b/.test(h1[0]),
+      `${page}: hero <h1> is not opaque at first paint (LCP regression)`,
+    );
+  }
+});
+
 // ── M2: the disabled download-CTA contract survives the Button refactor ──────
 test("M2 (dist) disabled download CTA still emitted after the Button refactor", () => {
   for (const page of ["index.html", join("en", "index.html")]) {

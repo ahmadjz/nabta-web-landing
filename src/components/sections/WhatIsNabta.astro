@@ -9,7 +9,7 @@ const { locale } = Astro.props;
 const t = getDict(locale).marketing.whatIs;
 ---
 
-<section class="mx-auto max-w-3xl px-4 py-16 sm:py-20">
+<section id="what-is-nabta" class="mx-auto max-w-3xl px-4 py-16 sm:py-20">
   <h2 class="text-2xl font-bold text-neutral-900 sm:text-3xl">{t.heading}</h2>
   <p class="mt-6 text-lg leading-relaxed text-neutral-700">{t.body1}</p>
   <p class="mt-4 text-lg leading-relaxed text-neutral-700">{t.body2}</p>

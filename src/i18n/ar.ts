@@ -41,6 +41,13 @@ export const ar = {
       title: "كل ما يخص نباتاتك في مكان واحد",
       subtitle:
         "تسوّق نباتات الزينة، واطلب توصيلها إلى بابك، واعتنِ بها بخطوات سهلة — بدعمٍ من الخبراء والذكاء الاصطناعي.",
+      /** Ghost CTA next to the download button — scrolls to the explainer section. */
+      ctaSecondary: "اعرف المزيد",
+      /** Overlapping "care chip" on the botanical hero stage (decorative sample). */
+      floatingChip: {
+        label: "تذكير الريّ",
+        value: "بعد يومين",
+      },
     },
     whatIs: {
       heading: "ما هي نبتة؟",

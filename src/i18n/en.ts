@@ -30,6 +30,11 @@ export const en: Dict = {
       title: "Everything for your plants, in one place",
       subtitle:
         "Shop ornamental plants, get them delivered to your door, and care for them with easy steps — backed by experts and AI.",
+      ctaSecondary: "Learn more",
+      floatingChip: {
+        label: "Watering reminder",
+        value: "In 2 days",
+      },
     },
     whatIs: {
       heading: "What is Nabta?",

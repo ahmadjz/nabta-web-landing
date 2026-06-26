@@ -1,6 +1,31 @@
 ---
+/**
+ * Hero (LVR-04) — asymmetric editorial hero. On `lg` a 12-col grid splits into a
+ * 7-col text column at the START and a 5-col botanical "stage" at the END; below
+ * `lg` it stacks (text first). The stage holds an `AmbientBackdrop` (mesh + capped
+ * drifting leaves) clipped to an organic blob, a focal `LeafCluster`, and an
+ * overlapping bento "care chip" `Card`. A corner `VineFlourish` bleeds off the END
+ * edge and mirrors in RTL.
+ *
+ * LCP CONTRACT: the `<h1>` is the Largest Contentful Paint element, so it renders
+ * fully OPAQUE at first paint — it is NEVER a `[data-reveal]` target (that CSS
+ * paints opacity:0 until JS arms it, which would defer the LCP). The staggered
+ * entrance animates ONLY the non-LCP siblings (eyebrow, lead, CTA) via the `Reveal`
+ * primitive. The decorative sprout draws via stroke-dashoffset, reduce-motion-gated.
+ *
+ * The disabled download-CTA contract (`DownloadButton`) is reused UNCHANGED; the
+ * "Learn more" ghost CTA anchors to `#what-is-nabta` (the explainer section).
+ */
 import { getDict, type Locale } from "../../i18n";
 import DownloadButton from "../DownloadButton.astro";
+import Button from "../Button.astro";
+import Reveal from "../Reveal.astro";
+import Eyebrow from "../Eyebrow.astro";
+import Card from "../Card.astro";
+import AmbientBackdrop from "../AmbientBackdrop.astro";
+import LeafCluster from "../motifs/LeafCluster.astro";
+import VineFlourish from "../motifs/VineFlourish.astro";
+import Icon from "../icons/Icon.astro";
 
 interface Props {
   locale: Locale;
@@ -11,20 +36,136 @@ const t = getDict(locale).marketing.hero;
 ---
 
 <section
-  class="border-b border-neutral-100 bg-gradient-to-b from-primary/5 to-white"
+  class="relative isolate overflow-hidden bg-gradient-to-b from-primary-50 to-cream"
 >
-  <div class="mx-auto max-w-5xl px-4 py-20 text-center sm:py-28">
-    <p class="text-sm font-semibold uppercase tracking-wide text-primary">
-      {t.eyebrow}
-    </p>
-    <h1 class="mt-4 text-4xl font-bold text-neutral-900 sm:text-5xl">
-      {t.title}
-    </h1>
-    <p class="mx-auto mt-6 max-w-2xl text-lg text-neutral-700">
-      {t.subtitle}
-    </p>
-    <div class="mt-10 flex justify-center">
-      <DownloadButton locale={locale} class="text-lg" />
+  {
+    /* Corner vine flourish bleeding off the END edge; mirrors its curl in RTL. */
+  }
+  <VineFlourish
+    class="pointer-events-none absolute -top-6 -end-16 -z-10 w-64 text-sage-200/70 [dir=rtl]:-scale-x-100"
+  />
+
+  <div
+    class="mx-auto grid max-w-editorial gap-[var(--space-gutter)] px-[var(--space-gutter)] py-[var(--space-section-y)] lg:grid-cols-12 lg:items-center lg:gap-12"
+  >
+    {/* ── Text column (start) ───────────────────────────────────────────── */}
+    <div class="lg:col-span-7">
+      <Reveal mode="slide-y">
+        <Eyebrow>{t.eyebrow}</Eyebrow>
+      </Reveal>
+
+      {/* LCP heading — opaque at first paint, NEVER a [data-reveal] target. */}
+      <h1
+        class="mt-4 text-balance font-display text-display font-semibold text-ink"
+      >
+        {t.title}
+      </h1>
+
+      {
+        /* Decorative line-draw sprout under the heading (reduce-motion-gated). */
+      }
+      <svg
+        class="hero-sprout mt-3 h-6 w-40 text-primary-600"
+        viewBox="0 0 168 28"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+        focusable="false"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          pathLength="1"
+          class="hero-sprout__draw"
+          d="M2 26C26 26 50 24 74 18 98 12 120 8 140 10"></path>
+        <path
+          pathLength="1"
+          class="hero-sprout__draw"
+          d="M96 13c-3-6-1-12 4-15 2 6 0 12-4 15Z"></path>
+        <path
+          pathLength="1"
+          class="hero-sprout__draw"
+          d="M120 9c4-4 10-4 15-1-4 3-10 4-15 1Z"></path>
+      </svg>
+
+      <Reveal mode="slide-y" class="mt-6 max-w-xl">
+        <p class="text-lead text-ink-700">{t.subtitle}</p>
+      </Reveal>
+
+      <Reveal mode="stagger" class="mt-8 flex flex-wrap items-center gap-4">
+        <DownloadButton locale={locale} />
+        <Button variant="ghost" href="#what-is-nabta">{t.ctaSecondary}</Button>
+      </Reveal>
+    </div>
+
+    {/* ── Botanical stage (end) ─────────────────────────────────────────── */}
+    <div class="relative mt-12 lg:col-span-5 lg:mt-0">
+      {
+        /* Blob-clipped backdrop box — the chip lives OUTSIDE it so it isn't clipped. */
+      }
+      <div
+        class="relative isolate mx-auto aspect-square w-full max-w-md overflow-hidden rounded-blob border border-line/60 shadow-leaf"
+      >
+        <AmbientBackdrop />
+        <LeafCluster
+          class="absolute inset-0 m-auto h-1/2 w-1/2 text-primary-300/80"
+        />
+      </div>
+
+      {
+        /* Overlapping bento "care chip" — slides in (RTL-aware via --slide-from). */
+      }
+      <Reveal
+        mode="slide-x"
+        class="absolute -bottom-4 start-0 w-max max-w-[15rem]"
+      >
+        <Card class="flex items-center gap-3">
+          <span
+            class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary-50 text-primary-700"
+          >
+            <Icon name="watering-can" class="h-5 w-5" />
+          </span>
+          <span class="leading-tight">
+            <span class="u-eyebrow text-eyebrow block text-clay-700">
+              {t.floatingChip.label}
+            </span>
+            <span class="block font-semibold text-ink">
+              {t.floatingChip.value}
+            </span>
+          </span>
+        </Card>
+      </Reveal>
     </div>
   </div>
 </section>
+
+<style>
+  /* Line-draw sprout: default fully-drawn (no-JS / reduced-motion see the finished
+     stroke), animating the dashoffset ONLY when motion is allowed. `pathLength="1"`
+     normalises every path so one keyframe draws them regardless of real length. */
+  .hero-sprout__draw {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 0;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .hero-sprout__draw {
+      animation: hero-sprout-draw var(--dur-slow) var(--ease-out-soft) both;
+    }
+    .hero-sprout__draw:nth-child(2) {
+      animation-delay: var(--dur-base);
+    }
+    .hero-sprout__draw:nth-child(3) {
+      animation-delay: calc(var(--dur-base) + var(--stagger));
+    }
+  }
+  @keyframes hero-sprout-draw {
+    from {
+      stroke-dashoffset: 1;
+    }
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+</style>
