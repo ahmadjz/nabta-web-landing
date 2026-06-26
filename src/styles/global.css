@@ -154,15 +154,12 @@
   .font-display {
     font-family: var(--font-display);
   }
-  /* Document-level Arabic face-swap — scoped to html[dir=rtl] (NOT any-ancestor
-     [dir=rtl]) so a local dir="ltr" island (e.g. an email node) can't flip an
-     Arabic heading to a Latin face. Reset transform/tracking so the Latin display
-     styling never leaks into Arabic. */
-  html[dir="rtl"] .font-display {
-    font-family: var(--font-display-ar);
-    text-transform: none;
-    letter-spacing: normal;
-  }
+  /* The Arabic face-swap for `.font-display` lives in `@layer utilities` (below),
+     NOT here: Tailwind v4 auto-generates a `.font-display` utility from the
+     `--font-display` token into the `utilities` layer, and CSS layer order beats
+     specificity — a font-family swap authored in `@layer base` silently loses to
+     that utility and every Arabic heading falls back to the Latin Fraunces stack
+     (no Arabic glyphs → an OS serif fallback). See the utilities-layer rule. */
 
   :focus-visible {
     outline: 2px solid var(--color-ring);
@@ -186,6 +183,24 @@
       transition-duration: 0.001ms !important;
       scroll-behavior: auto !important;
     }
+  }
+}
+
+/* Arabic display face-swap — MUST sit in `@layer utilities`, the SAME layer as
+ * Tailwind's auto-generated `.font-display` utility, so it actually wins: across
+ * layers, order beats specificity (utilities > base), so the base-layer swap lost
+ * and Arabic headings rendered in the Latin Fraunces stack. Within one layer
+ * specificity decides, and `html[dir="rtl"] .font-display` (0,2,1) beats the bare
+ * `.font-display` utility (0,1,0). Scoped to html[dir=rtl] (NOT any-ancestor
+ * [dir=rtl]) so a local dir="ltr" island can't flip an Arabic heading to a Latin
+ * face; transform/tracking reset so Latin display styling never leaks into Arabic.
+ * Regression-guarded by the headless `.font-display` computed-style check in
+ * scripts/preview-smoke.mjs. */
+@layer utilities {
+  html[dir="rtl"] .font-display {
+    font-family: var(--font-display-ar);
+    text-transform: none;
+    letter-spacing: normal;
   }
 }
 

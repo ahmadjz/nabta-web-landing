@@ -132,6 +132,27 @@ async function headlessLeg() {
       `opacity=${heroArmed}`,
     );
 
+    // ── Arabic display face actually WINS the cascade (RTL face-swap) ─────────
+    // build-smoke greps that `html[dir=rtl] .font-display` EXISTS in source; it
+    // cannot prove the rule WINS at runtime. Tailwind v4 auto-generates a
+    // `.font-display` utility from the `--font-display` token in the later
+    // `utilities` layer, and CSS layer order beats the base-layer swap's higher
+    // specificity — so a font-family swap authored in `@layer base` silently
+    // loses and every Arabic display heading falls back to the Latin Fraunces
+    // stack (no Arabic glyphs → an OS serif fallback that varies per visitor).
+    // Only a live computed style on the rtl page catches it.
+    const arDisplayFont = await page.evaluate(() => {
+      const el = document.querySelector(".font-display");
+      return el ? getComputedStyle(el).fontFamily : null;
+    });
+    record(
+      "headless: ar .font-display resolves to the Arabic face (Tajawal), not Fraunces (RTL swap wins the layer cascade)",
+      !!arDisplayFont &&
+        /tajawal/i.test(arDisplayFont) &&
+        !/fraunces/i.test(arDisplayFont),
+      `font-family=${arDisplayFont}`,
+    );
+
     // ── Swap forward ar→en via the toggle (no full navigation) ───────────────
     await page.click("[data-language-toggle]");
     const swappedToEn = await waitOk(
