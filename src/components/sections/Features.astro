@@ -1,5 +1,23 @@
 ---
+/**
+ * Features (LVR-05) — botanical BENTO grid. On `lg` a 6-col grid: the first "hero"
+ * feature spans 3 cols × 2 rows on an inverted forest Card; the rest fill 3- and
+ * 2-col tiles (3 → 3 → 2/2/2). Below `lg` it relaxes to 2 cols (hero full-width),
+ * then a single stacked column. Each tile pairs an index-mapped line-art Icon with
+ * a display title + body, fading up on a `stagger` reveal.
+ *
+ * Icons are mapped BY ARRAY INDEX (`FEATURE_ICONS`) — kept OUT of the i18n dict so
+ * the strict ar/en key-path parity (test/marketing.test.mjs) stays clean; the
+ * directional `truck` glyph mirrors under `[dir=rtl]`. `bg-cream` section with a
+ * top `BlobDivider` wave (white, dipping the white section above into the cream).
+ */
+import Section from "../Section.astro";
+import Reveal from "../Reveal.astro";
+import Card from "../Card.astro";
+import Icon from "../icons/Icon.astro";
+import BlobDivider from "../motifs/BlobDivider.astro";
 import { getDict, type Locale } from "../../i18n";
+import { FEATURE_ICONS, MIRROR_IN_RTL } from "./feature-icons.ts";
 
 interface Props {
   locale: Locale;
@@ -7,23 +25,89 @@ interface Props {
 
 const { locale } = Astro.props;
 const t = getDict(locale).marketing.features;
+
+/** Bento column/row spans, index-aligned to `features.items`. Mobile stacks (1
+ *  col); `sm` is 2 cols with the hero full-width; `lg` is the 6-col bento. */
+const SPANS = [
+  "sm:col-span-2 lg:col-span-3 lg:row-span-2",
+  "lg:col-span-3",
+  "lg:col-span-3",
+  "lg:col-span-2",
+  "lg:col-span-2",
+  "lg:col-span-2",
+];
 ---
 
-<section class="border-y border-neutral-100 bg-neutral-50">
-  <div class="mx-auto max-w-5xl px-4 py-16 sm:py-20">
-    <h2 class="text-2xl font-bold text-neutral-900 sm:text-3xl">{t.heading}</h2>
-    <p class="mt-3 max-w-2xl text-neutral-600">{t.subheading}</p>
-    <ul class="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-      {
-        t.items.map((item) => (
-          <li class="rounded-lg border border-neutral-200 bg-white p-6 shadow-sm">
-            <h3 class="text-lg font-semibold text-primary">{item.title}</h3>
-            <p class="mt-2 text-sm leading-relaxed text-neutral-700">
+<Section tone="cream" width="editorial">
+  {
+    /* Top wave: a white BlobDivider dips the white section above into the cream. */
+  }
+  <BlobDivider
+    slot="motif"
+    class="absolute inset-x-0 top-0 w-full text-surface"
+  />
+
+  <div class="max-w-prose">
+    <Reveal
+      as="h2"
+      mode="slide-y"
+      class="text-balance font-display text-h2 font-semibold text-ink"
+    >
+      {t.heading}
+    </Reveal>
+    <Reveal mode="slide-y" class="mt-3">
+      <p class="text-lead text-ink-700">{t.subheading}</p>
+    </Reveal>
+  </div>
+
+  <Reveal
+    mode="stagger"
+    class="mt-[var(--space-stack)] grid gap-[var(--space-stack)] sm:grid-cols-2 lg:grid-cols-6 lg:auto-rows-[minmax(11rem,auto)]"
+  >
+    {
+      t.items.map((item, i) => {
+        const iconName = FEATURE_ICONS[i];
+        const isHero = i === 0;
+        return (
+          <Card
+            variant={isHero ? "inverted" : "plain"}
+            class:list={["flex flex-col", SPANS[i]]}
+          >
+            <span
+              class:list={[
+                "flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl",
+                isHero
+                  ? "bg-cream-50/10 text-clay"
+                  : "bg-primary-50 text-primary",
+              ]}
+            >
+              <Icon
+                name={iconName}
+                class:list={[
+                  "h-6 w-6",
+                  MIRROR_IN_RTL.has(iconName) && "[dir=rtl]:-scale-x-100",
+                ]}
+              />
+            </span>
+            <h3
+              class:list={[
+                "mt-4 font-display text-h3 font-semibold",
+                isHero ? "text-cream-50" : "text-ink",
+              ]}
+            >
+              {item.title}
+            </h3>
+            <p
+              class:list={[
+                "mt-2 text-small",
+                isHero ? "text-cream-50/90" : "text-ink-700",
+              ]}
+            >
               {item.body}
             </p>
-          </li>
-        ))
-      }
-    </ul>
-  </div>
-</section>
+          </Card>
+        );
+      })
+    }
+  </Reveal>
+</Section>

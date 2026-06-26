@@ -1,4 +1,19 @@
 ---
+/**
+ * WhatIsNabta (LVR-05) — asymmetric two-column editorial explainer. On `md` a
+ * 1fr / 1.4fr grid puts the clay kicker + display heading + a Frond accent in the
+ * START rail and the body prose in the END column, separated by a logical
+ * inline-start hairline (`md:border-s`). An oversized translucent Frond bleeds off
+ * the END corner via the Section `motif` slot (decorative, aria-hidden).
+ *
+ * Keeps `id="what-is-nabta"` — the Hero "Learn more" ghost CTA (LVR-04) anchors
+ * here, so the id is a load-bearing contract. The h2 is NOT the LCP (the hero h1
+ * is), so it may freely `[data-reveal]`.
+ */
+import Section from "../Section.astro";
+import Reveal from "../Reveal.astro";
+import Eyebrow from "../Eyebrow.astro";
+import Frond from "../motifs/Frond.astro";
 import { getDict, type Locale } from "../../i18n";
 
 interface Props {
@@ -9,8 +24,38 @@ const { locale } = Astro.props;
 const t = getDict(locale).marketing.whatIs;
 ---
 
-<section id="what-is-nabta" class="mx-auto max-w-3xl px-4 py-16 sm:py-20">
-  <h2 class="text-2xl font-bold text-neutral-900 sm:text-3xl">{t.heading}</h2>
-  <p class="mt-6 text-lg leading-relaxed text-neutral-700">{t.body1}</p>
-  <p class="mt-4 text-lg leading-relaxed text-neutral-700">{t.body2}</p>
-</section>
+<Section id="what-is-nabta" tone="white" width="editorial">
+  {/* Oversized translucent leaf line-art, bleeding off the END corner. */}
+  <Frond
+    slot="motif"
+    class="absolute -bottom-12 -end-10 w-80 text-sage-200/40 [dir=rtl]:-scale-x-100"
+  />
+
+  <div class="grid gap-[var(--space-stack)] md:grid-cols-[1fr_1.4fr] md:gap-12">
+    {/* ── Start rail: kicker + display heading + frond accent ───────────── */}
+    <div>
+      <Reveal mode="slide-y">
+        <Eyebrow>{t.eyebrow}</Eyebrow>
+      </Reveal>
+      <Reveal
+        as="h2"
+        mode="slide-y"
+        class="mt-4 text-balance font-display text-h2 font-semibold text-ink"
+      >
+        {t.heading}
+      </Reveal>
+      <Frond class="mt-6 h-12 w-12 text-primary-300" />
+    </div>
+
+    {
+      /* ── End column: body prose, logical hairline separator at md+ ──────── */
+    }
+    <Reveal
+      mode="slide-y"
+      class="max-w-prose md:border-s md:border-sage-200 md:ps-10"
+    >
+      <p class="text-lead text-ink-700">{t.body1}</p>
+      <p class="mt-4 text-body text-ink-700">{t.body2}</p>
+    </Reveal>
+  </div>
+</Section>

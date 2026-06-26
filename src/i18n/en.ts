@@ -37,6 +37,7 @@ export const en: Dict = {
       },
     },
     whatIs: {
+      eyebrow: "Get to know Nabta",
       heading: "What is Nabta?",
       body1:
         "Nabta is an app for buying plants, but it's more than a store: it's a relationship between you and your plants, supported by experts and a smart assistant. Browse ornamental plants, get suggestions tailored to your experience and your home's conditions, then order and get them delivered with ease.",
