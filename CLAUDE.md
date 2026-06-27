@@ -28,10 +28,13 @@ Shared rules live in [../nabta-docs/claude/rules/](../nabta-docs/claude/rules/):
   is **NO `tailwind.config.*`**; the theme lives in
   [`src/styles/global.css`](src/styles/global.css) as `@theme` CSS variables.
 - **`@astrojs/sitemap`** for `sitemap-*.xml`; a generated `robots.txt` endpoint.
-- **Self-hosted fonts** (`@fontsource/cairo`, Arabic + Latin) — never a Google-Fonts CDN.
-- Tests: **`node --test`** (zero extra deps) for the build smoke + a `node` preview
-  script. **No Vitest, no React, no shadcn, no Orval, no Zustand** — this site has none
-  of the admin's runtime stack.
+- **Self-hosted fonts** — **Fraunces** (variable, Latin display) + **Tajawal** (Arabic
+  display) + **Cairo** (body), all via `@fontsource*`, never a Google-Fonts CDN. (The two
+  display faces were added in the LVR botanical redesign — see
+  [decision 40](../nabta-docs/01-decisions/40-landing-botanical-motion-redesign.md).)
+- Tests: **`node --test`** for the build smoke + `node` preview/link scripts (the LVR
+  headless `astro:page-load` leg adds **`puppeteer-core`** as the only test dep). **No
+  Vitest, no React, no shadcn, no Orval, no Zustand** — none of the admin's runtime stack.
 
 ## Load-bearing decisions (SITE-01 scaffold)
 
@@ -87,9 +90,14 @@ re-tunes the green, re-snapshot and bump the SHA in that file's header comment.
 
 The **site itself collects nothing**: no cookies, no analytics, no Google-Fonts CDN —
 **no third-party requests at all**. This keeps the site out of its own privacy policy,
-removes any cookie-consent obligation, and is asserted by a CI check (the smoke test
-greps `dist/**` for `fonts.googleapis.com` / `gtag(` / analytics hosts). Adding analytics
-later is a **separate task with consent UI** — it must not sneak in.
+removes any cookie-consent obligation, and is asserted by CI. The **generic same-origin
+gate** is [`scripts/link-check.mjs`](scripts/link-check.mjs) (`npm run test:links` — every
+internal link/resource resolves + zero third-party requests) **plus** the extended
+[`test/build-smoke.test.mjs`](test/build-smoke.test.mjs) scan of bundled `dist/_astro/*.css`
+for `url(http…)` / `@import` (LVR-01 — a CSS-level off-origin font/asset can't hide in the
+HTML grep). The literal needle list (`fonts.googleapis.com` / `gtag(` / analytics hosts) is
+only a **backstop**, not the primary gate. Adding analytics later is a **separate task with
+consent UI** — it must not sneak in.
 
 ### SEO base (D-site-5)
 
@@ -98,6 +106,37 @@ description, canonical, OG/Twitter, and reciprocal hreflang (`ar` + `en` + `x-de
 — **all absolute + base-prefixed**. `404.astro` is `noindex` (no pair → no hreflang).
 `robots.txt` is a **generated endpoint** ([`src/pages/robots.txt.ts`](src/pages/robots.txt.ts)),
 not a static file, so its absolute Sitemap URL derives from the one config source.
+
+### Motion + page transitions (D-site-6 — LVR botanical redesign)
+
+**JS + motion are in-scope.** The owner lifted the original **zero-JS / no-View-Transitions**
+stance ([decision 40](../nabta-docs/01-decisions/40-landing-botanical-motion-redesign.md)). The
+site now ships **bounded, first-party** runtime JS — no third party, still a11y/bp=100:
+
+- **Page transitions:** Astro `<ClientRouter />` in [`src/layouts/Base.astro`](src/layouts/Base.astro)
+  — a **fade only**, never a directional page slide. **Do NOT `transition:persist`** the Header
+  across the ar↔en toggle (a persisted RTL header / wrong-face Wordmark on an LTR page is THE
+  regression); `<html dir|lang>` are re-derived per swap.
+- **Scroll-reveal:** [`src/scripts/reveal.ts`](src/scripts/reveal.ts) + count-up
+  [`src/scripts/count-up.ts`](src/scripts/count-up.ts) use an `IntersectionObserver` and
+  **register on `document` `astro:page-load`** (NOT a once-only `DOMContentLoaded`), so reveals
+  re-fire after every ClientRouter swap. The reveal "from" state is **JS-applied** (a
+  `data-motion-ready` root) — **never** a static `[data-reveal]{opacity:0}` in CSS, so a no-JS /
+  failed-script render leaves content visible.
+- **Ambient motion:** CSS-only `AmbientBackdrop` (out-of-flow, `pointer-events:none`); every
+  motif/icon `<svg>` is `aria-hidden` + intrinsic-dimensioned.
+- **`prefers-reduced-motion`:** a reduce-motion block neutralises transforms/animations; the LCP
+  hero `<h1>` is **always opaque at first paint** (stagger non-LCP siblings — never `opacity:0`
+  on the h1).
+- **RTL motion:** horizontal reveals slide from the logical start via `--slide-from` (driven by
+  `[dir]`), so nothing slides the wrong way under RTL. `rtl-logical` structurally can't catch
+  motion direction, so it has its **own** gate: [`test/motion-a11y.test.mjs`](test/motion-a11y.test.mjs)
+  (R1–R7 source-scan: GPU-only props, no literal-sign `translateX` outside `var(--slide-from)`,
+  no static reveal-hide, reduce-motion block exists, scripts register on `astro:page-load`, …)
+  plus the headless `astro:page-load` runtime leg in
+  [`scripts/preview-smoke.mjs`](scripts/preview-smoke.mjs) (`puppeteer-core`).
+- **Firm bounds (unchanged):** Lighthouse **a11y + best-practices = 100**, **zero third-party
+  requests**, RTL correctness, and ar/en chrome-string parity stay hard gates.
 
 ## Tests (SITE-01)
 
@@ -142,10 +181,16 @@ not a static file, so its absolute Sitemap URL derives from the one config sourc
 
 ## Phase / roadmap
 
-Tasks: [../nabta-docs/08-roadmap/tasks/landing-marketing-site/](../nabta-docs/08-roadmap/tasks/landing-marketing-site/)
-(prefix `SITE-`). **SITE-01** = this scaffold; then marketing landing (02), legal
+Tasks (initial build): [../nabta-docs/08-roadmap/tasks/done/landing-marketing-site/](../nabta-docs/08-roadmap/tasks/done/landing-marketing-site/)
+(prefix `SITE-`). **SITE-01** = the scaffold; then marketing landing (02), legal
 placeholder pages (03), SEO/a11y/Lighthouse polish (04), GitHub Pages deploy +
 public-URL verify (05), reconciliation (06).
+
+Botanical + motion redesign: [../nabta-docs/08-roadmap/tasks/done/landing-visual-refresh/](../nabta-docs/08-roadmap/tasks/done/landing-visual-refresh/)
+(prefix `LVR-`) — design tokens/typography (01), primitives + motion machinery (02),
+ClientRouter + header/footer (03), section rebuilds (04–07), legal/404 restyle (08),
+motion-a11y/RTL gate (09), deploy + live verify (10), reconciliation (11). Reverses the
+zero-JS stance — [decision 40](../nabta-docs/01-decisions/40-landing-botanical-motion-redesign.md).
 
 ## Commands
 
