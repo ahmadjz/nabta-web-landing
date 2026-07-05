@@ -15,6 +15,7 @@ green brand tokens and the ar-default + RTL i18n *philosophy*. Decision:
 
 Shared rules live in [../nabta-docs/claude/rules/](../nabta-docs/claude/rules/):
 
+- [Execution policy](../nabta-docs/claude/rules/execution-policy.md) — the task-session contract: claims/lease, deferred commits (never commit mid-work), reviewer pass before a task flips ✅, RED-ahead specs land skipped, backend deploys via /nabta-deploy from a committed SHA. Read it before executing any planned task.
 - [Commit style](../nabta-docs/claude/rules/commit-style.md) — Conventional Commits.
 - [TDD workflow](../nabta-docs/claude/rules/tdd-workflow.md) — coverage is a signal, not a gate.
 - [Secret handling](../nabta-docs/claude/rules/secret-handling.md).
