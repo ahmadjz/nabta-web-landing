@@ -29,9 +29,28 @@ jobs:
       - name: Smoke test (emitted dist)
         run: npm run test
 
+      # Preflight: the headless leg below depends on the ubuntu-latest runner image
+      # shipping Google Chrome at /usr/bin/google-chrome. If a future image relocates
+      # or drops it, fail HERE with a clear infra-vs-code message instead of a cryptic
+      # puppeteer "Chrome not found" downstream (update the path or add a setup step).
+      - name: Verify Chrome for the headless leg
+        run: |
+          test -x /usr/bin/google-chrome || {
+            echo "::error::Google Chrome not found at /usr/bin/google-chrome — the ubuntu-latest runner image changed. Update PUPPETEER_EXECUTABLE_PATH or add a Chrome-install step (e.g. browser-actions/setup-chrome)."
+            exit 1
+          }
+          /usr/bin/google-chrome --version
+
       # Preview-SERVED checks — astro preview honours `base` (astro dev does not).
-      - name: Preview-served checks
+      # The headless-browser leg (reduce-motion / toggle / LCP / coarse-pointer runtime
+      # proofs) is REQUIRED here, never a silent skip (LPV2-08): REQUIRE_HEADLESS=1 turns
+      # a missing Chrome into a HARD failure, and PUPPETEER_EXECUTABLE_PATH points at the
+      # runner image's pre-installed Google Chrome so the leg actually runs.
+      - name: Preview-served checks (headless leg required — fails, never skips)
         run: npm run test:preview
+        env:
+          REQUIRE_HEADLESS: "1"
+          PUPPETEER_EXECUTABLE_PATH: /usr/bin/google-chrome
 
       # Internal link-check + no-third-party NETWORK assertion (preview-served).
       - name: Link-check + no-third-party
