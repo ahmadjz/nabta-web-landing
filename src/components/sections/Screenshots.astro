@@ -52,7 +52,17 @@ const t = getDict(locale).marketing.screenshots;
   <div
     class="mx-auto max-w-editorial px-[var(--space-gutter)] py-[var(--space-section-y)]"
   >
-    <div class="max-w-prose">
+    {
+      /* Section-entrance scroll choreography (LPV2-04): the intro block rises into
+         place as it enters the viewport, via the CSS `view()` scroll timeline
+         (transform-only, so it LAYERS WITH — never fights — the child Reveal
+         fades). Static under reduce-motion / the in-page toggle (the dual
+         `animation-timeline: none` neutralisers in global.css, R8); degrades to the
+         final visible state where scroll-timeline is unsupported (@supports-gated).
+         NOT placed on a `position: sticky` ancestor — a transformed sticky ancestor
+         would break the walkthrough's pin. */
+    }
+    <div class="max-w-prose" data-scroll-anim>
       <Reveal
         as="h2"
         mode="slide-y"
@@ -81,21 +91,30 @@ const t = getDict(locale).marketing.screenshots;
                   phoneStart ? "md:order-1" : "md:order-2",
                 ]}
               >
-                <PhoneFrame>
-                  <div class="relative">
-                    <Image
-                      src={screenshot}
-                      alt={shot.alt}
-                      width={300}
-                      height={600}
-                      loading="lazy"
-                      class="block w-full"
-                    />
-                    <span class="absolute start-2 top-2 rounded-full bg-ink/70 px-2 py-0.5 text-xs font-medium text-surface">
-                      {t.placeholderBadge}
-                    </span>
-                  </div>
-                </PhoneFrame>
+                {/* Thumb parallax (LPV2-04): the whole phone drifts up a touch as
+                     its row scrolls through, via the `view()` scroll timeline. On
+                     its OWN wrapper (NOT the Reveal element, so the parallax
+                     transform never fights the Reveal's slide-y transition), and
+                     on the frame — not the clipped <Image> — so no clip gap opens.
+                     No CLS: transform-only, dims already enforced by
+                     cls-img-dims.test. Static under reduce-motion / the toggle. */}
+                <div class="w-full" data-scroll-parallax>
+                  <PhoneFrame>
+                    <div class="relative">
+                      <Image
+                        src={screenshot}
+                        alt={shot.alt}
+                        width={300}
+                        height={600}
+                        loading="lazy"
+                        class="block w-full"
+                      />
+                      <span class="absolute start-2 top-2 rounded-full bg-ink/70 px-2 py-0.5 text-xs font-medium text-surface">
+                        {t.placeholderBadge}
+                      </span>
+                    </div>
+                  </PhoneFrame>
+                </div>
               </Reveal>
 
               {/* ── Sticky copy block ────────────────────────────────────── */}
