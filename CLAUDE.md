@@ -87,6 +87,16 @@ from **`nabta-web-admin/src/globals.css` @ commit `62e5f96`**. Deliberately **NO
 copied: the shadcn neutral token set, the `.dark` block, `tw-animate-css`. If the admin
 re-tunes the green, re-snapshot and bump the SHA in that file's header comment.
 
+**Palette re-tune (LPV2-01, [decision 42](../nabta-docs/01-decisions/42-landing-scoped-motion-lib-and-v2-polish.md)):** the botanical sage/cream/clay/ink scales were
+re-tuned for a fresher v2 look (chroma enriched, dark shades deepened, cream a hair
+warmer) with **token names unchanged** and **`--color-primary`/`--color-ring` kept
+byte-identical** to the `62e5f96` snapshot — only the derived scales moved. Contrast is
+re-verified by [`test/contrast.test.mjs`](test/contrast.test.mjs) (a correct
+OKLCH→OKLab→linear-sRGB→WCAG-luminance calc) with Lighthouse a11y=100 as the authority;
+two pairs are **locked ≥ 4.5:1** — `clay-700`-on-`cream` (Eyebrow) and
+`cream`-on-`primary-900` (forest CTA band) — and `primary`-on-`cream` ≈ 4.53:1 is
+razor-thin, so **`--color-primary` is frozen and `--color-cream` may never be darkened**.
+
 ### Zero third-party requests (D-site-4)
 
 The **site itself collects nothing**: no cookies, no analytics, no Google-Fonts CDN —
@@ -100,6 +110,20 @@ HTML grep). The literal needle list (`fonts.googleapis.com` / `gtag(` / analytic
 only a **backstop**, not the primary gate. Adding analytics later is a **separate task with
 consent UI** — it must not sneak in.
 
+**Third-party *libs* in the dist — banned, with ONE scoped exception ([decision 42](../nabta-docs/01-decisions/42-landing-scoped-motion-lib-and-v2-polish.md)).**
+The zero-**request** rule above is absolute; the earlier blanket "no third-party libs in the
+shipped `dist` JS" is **lifted for exactly one library — `motion` (Motion, WAAPI-based)** —
+for the signature-motion island only ([`src/scripts/hero-signature.ts`](src/scripts/hero-signature.ts)
++ the reused spring in [`src/scripts/magnetic.ts`](src/scripts/magnetic.ts)). It stays
+**bundled same-origin** into `/_astro/*` (so **zero third-party requests still holds** — the
+gates above are unchanged). The lift's teeth: a `motion`-**only import allowlist** in
+[`test/motion-a11y.test.mjs`](test/motion-a11y.test.mjs) (`MOTION_ALLOW = {"motion",
+"motion/mini", "motion-dom"}`) — the **only** bare/third-party client import allowed; **any
+other re-opens the ban** (build fails), and the allowlist must be *exercised* (the island is
+wired). ⚠️ Motion has **no built-in reduced-motion**, so each island must manually
+early-return static on `isEffectiveMotionOff()` (see the motion subsection). Widening the
+allowlist is a deliberate future decision, not drift.
+
 ### SEO base (D-site-5)
 
 [`src/components/BaseHead.astro`](src/components/BaseHead.astro) emits per-page title,
@@ -108,11 +132,15 @@ description, canonical, OG/Twitter, and reciprocal hreflang (`ar` + `en` + `x-de
 `robots.txt` is a **generated endpoint** ([`src/pages/robots.txt.ts`](src/pages/robots.txt.ts)),
 not a static file, so its absolute Sitemap URL derives from the one config source.
 
-### Motion + page transitions (D-site-6 — LVR botanical redesign)
+### Motion + page transitions (D-site-6 — LVR botanical redesign + LPV2 v2 polish)
 
 **JS + motion are in-scope.** The owner lifted the original **zero-JS / no-View-Transitions**
-stance ([decision 40](../nabta-docs/01-decisions/40-landing-botanical-motion-redesign.md)). The
-site now ships **bounded, first-party** runtime JS — no third party, still a11y/bp=100:
+stance ([decision 40](../nabta-docs/01-decisions/40-landing-botanical-motion-redesign.md)); the
+**LPV2 v2 polish** ([decision 42](../nabta-docs/01-decisions/42-landing-scoped-motion-lib-and-v2-polish.md))
+then added scroll-driven anims, a view-transition crossfade, an in-page motion toggle, and the
+**one bundled `motion` island** (see D-site-4). The site ships **bounded** runtime JS — still
+**zero third-party requests**, still a11y/bp=100 — first-party everywhere **except** the single
+allowlisted `motion` island:
 
 - **Page transitions:** Astro `<ClientRouter />` in [`src/layouts/Base.astro`](src/layouts/Base.astro)
   — a **fade only**, never a directional page slide. **Do NOT `transition:persist`** the Header
@@ -126,18 +154,50 @@ site now ships **bounded, first-party** runtime JS — no third party, still a11
   failed-script render leaves content visible.
 - **Ambient motion:** CSS-only `AmbientBackdrop` (out-of-flow, `pointer-events:none`); every
   motif/icon `<svg>` is `aria-hidden` + intrinsic-dimensioned.
+- **Motion-preference toggle + effective-motion signal (LPV2):**
+  [`src/scripts/motion-pref.ts`](src/scripts/motion-pref.ts) exports `isEffectiveMotionOff()`
+  = OS `prefers-reduced-motion:reduce` **OR** the in-page toggle (`html[data-motion="off"]`),
+  persisted in `localStorage["nabta-motion"]` and stamped **pre-paint** by an inline
+  `<script is:inline>` in `Base.astro` (no flash), re-applied per `astro:page-load`. **Two
+  consumers, two mechanisms:** CSS-driven motion (reveal/ambient/scroll) is neutralised by a
+  **CSS twin** in `global.css` keyed on `html[data-motion="off"] *` mirroring the `@media
+  reduce` block with `!important` (a JS data-attr alone is inert on CSS motion; `!important`
+  beats `AmbientBackdrop`'s inline duration); JS-driven motion (count-up + the islands) reads
+  the JS helper.
+- **CSS scroll-driven entrances + parallax (LPV2):** `animation-timeline: view()/scroll()`,
+  transform/opacity only. `animation-timeline` is **progress-based** — the duration-collapse
+  blocks do NOT stop it — so every scroll-timeline rule carries an explicit
+  `animation-timeline: none !important` under **BOTH** `@media (prefers-reduced-motion:reduce)`
+  **AND** `html[data-motion="off"]` (a silent-violation trap; **R8** asserts both forms).
+- **View-transition crossfade (LPV2):** a **named** crossfade on a **locale-invariant**
+  element (never Header/Wordmark — a persisted wrong-face/dir header is the H6 regression),
+  with a reduce-motion + toggle `animation:none` fallback.
+- **The one `motion` island (LPV2, [decision 42](../nabta-docs/01-decisions/42-landing-scoped-motion-lib-and-v2-polish.md)):**
+  the pointer-reactive hero foliage ([`src/scripts/hero-signature.ts`](src/scripts/hero-signature.ts))
+  + magnetic primary CTA ([`src/scripts/magnetic.ts`](src/scripts/magnetic.ts)) use the bundled
+  `motion` lib (see D-site-4's allowlist). Motion has **no** built-in reduced-motion, so each
+  island **early-returns static on `isEffectiveMotionOff()`**, is `(pointer:fine)`-only, keeps
+  its layers `aria-hidden`/`pointer-events:none`/off the LCP `<h1>`, and **tears down** its
+  listeners + `.stop()`s its animation on `astro:before-swap`.
 - **`prefers-reduced-motion`:** a reduce-motion block neutralises transforms/animations; the LCP
   hero `<h1>` is **always opaque at first paint** (stagger non-LCP siblings — never `opacity:0`
   on the h1).
 - **RTL motion:** horizontal reveals slide from the logical start via `--slide-from` (driven by
   `[dir]`), so nothing slides the wrong way under RTL. `rtl-logical` structurally can't catch
-  motion direction, so it has its **own** gate: [`test/motion-a11y.test.mjs`](test/motion-a11y.test.mjs)
-  (R1–R7 source-scan: GPU-only props, no literal-sign `translateX` outside `var(--slide-from)`,
-  no static reveal-hide, reduce-motion block exists, scripts register on `astro:page-load`, …)
-  plus the headless `astro:page-load` runtime leg in
-  [`scripts/preview-smoke.mjs`](scripts/preview-smoke.mjs) (`puppeteer-core`).
+  motion direction, so it has its **own** gate: [`test/motion-a11y.test.mjs`](test/motion-a11y.test.mjs).
+  Its source-scan owns **R1–R8** (GPU-only props, no literal-sign `translateX` outside
+  `var(--slide-from)`, no static reveal-hide, reduce-motion block exists, scripts register on
+  `astro:page-load`, …) **plus the LPV2 gate** (LPV2-08): the `motion`-only import allowlist,
+  the **R1-twin** `html[data-motion="off"]` duration-collapse, **R8** dual-neutralised
+  scroll-timeline, the view-transition fallback, each island's effective-motion guard +
+  `pointer:fine` + `astro:before-swap` teardown, and count-up honesty. The headless
+  `astro:page-load` runtime leg in [`scripts/preview-smoke.mjs`](scripts/preview-smoke.mjs)
+  (`puppeteer-core`) proves OS-reduce **and** toggle-off make motion static **independently**,
+  persistence across reload+swap, LCP-is-h1, coarse-pointer no-op — and **fails, not silently
+  skips**, when CI has no Chrome (`REQUIRE_HEADLESS`).
 - **Firm bounds (unchanged):** Lighthouse **a11y + best-practices = 100**, **zero third-party
-  requests**, RTL correctness, and ar/en chrome-string parity stay hard gates.
+  requests**, RTL correctness, and ar/en chrome-string parity stay hard gates. The one bundled
+  `motion` island (D-site-4) does **not** relax any of them.
 
 ## Tests (SITE-01)
 
@@ -192,6 +252,14 @@ Botanical + motion redesign: [../nabta-docs/08-roadmap/tasks/done/landing-visual
 ClientRouter + header/footer (03), section rebuilds (04–07), legal/404 restyle (08),
 motion-a11y/RTL gate (09), deploy + live verify (10), reconciliation (11). Reverses the
 zero-JS stance — [decision 40](../nabta-docs/01-decisions/40-landing-botanical-motion-redesign.md).
+
+Polish v2 (a11y + motion + visual upgrade): [../nabta-docs/08-roadmap/tasks/done/landing-polish-v2/](../nabta-docs/08-roadmap/tasks/done/landing-polish-v2/)
+(prefix `LPV2-`) — palette/token re-tune + contrast gate (01), web-design-guidelines a11y +
+the motion-preference toggle (02), the signature `motion` island (03), scroll choreography +
+view-transition + magnetic CTA (04), showcase/impact-stats (05), conversion sections (06),
+copy pass (07), the motion-a11y verification gate (08), deploy + live verify (09),
+reconciliation (10). The scoped `motion` ban-lift + palette re-tune —
+[decision 42](../nabta-docs/01-decisions/42-landing-scoped-motion-lib-and-v2-polish.md).
 
 ## Commands
 
