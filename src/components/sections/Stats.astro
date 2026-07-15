@@ -1,0 +1,94 @@
+---
+/**
+ * Impact-stats band (LPV2-05) — the ONE genuinely-new marketing section, and the
+ * first surface to WIRE the dormant `count-up.ts`. A full-bleed `Section
+ * tone="forest"` "by the numbers" band: three verifiable product facts rendered
+ * as big count-up numbers over the dark ground, so it punctuates the white/cream
+ * rhythm the way the DownloadCTA forest band does (two dark bands, well separated).
+ *
+ * NUMBERS-OUT-OF-DICT: the display numbers + decorative icons live in the
+ * non-translated `stats.ts` tuples (`STATS` / `STAT_ICONS`, index-mapped like
+ * feature-icons.ts) — only the `label` is translated — so ar/en key-path parity
+ * (test/marketing.test) stays clean and a fact can never drift per-locale.
+ *
+ * count-up HONESTY: each `[data-count-up]` node SERVER-RENDERS the real fact
+ * (`${countTo}${suffix}`) as its own text. No-JS / crawler / Lighthouse readers +
+ * count-up.ts's runtime `.sr-only` snapshot all get the true number; count-up
+ * animates a fresh aria-hidden 0→N sibling on top and honours the effective-motion
+ * signal itself (no extra wiring here). `tabular-nums` keeps digit width stable so
+ * the animating number doesn't jitter its layout.
+ *
+ * Contrast: text is `cream-50` (lighter than the locked `cream`-on-`primary-900`
+ * contrast floor) at opacities the DownloadCTA forest band already ships AA-clean
+ * (full for the number, `/85` for the supporting subheading + labels — the same
+ * `text-cream-50/85` its lead paragraph uses).
+ */
+import Section from "../Section.astro";
+import Reveal from "../Reveal.astro";
+import Icon from "../icons/Icon.astro";
+import MeshGradient from "../motifs/MeshGradient.astro";
+import { getDict, type Locale } from "../../i18n";
+import { STATS, STAT_ICONS } from "./stats.ts";
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const t = getDict(locale).marketing.stats;
+---
+
+<Section tone="forest" width="editorial">
+  {
+    /* Soft mesh wash — decorative, low-opacity, clipped by Section. A distinct
+     idSuffix keeps its gradient IDs unique vs the Hero/CTA MeshGradients. */
+  }
+  <MeshGradient
+    slot="motif"
+    idSuffix="stats"
+    class="absolute inset-0 h-full w-full opacity-[0.1]"
+  />
+
+  <div class="max-w-prose">
+    <Reveal
+      as="h2"
+      mode="slide-y"
+      class="text-balance font-display text-h2 font-semibold text-cream-50"
+    >
+      {t.heading}
+    </Reveal>
+    <Reveal mode="slide-y" class="mt-3">
+      <p class="text-lead text-cream-50/85">{t.subheading}</p>
+    </Reveal>
+  </div>
+
+  <Reveal
+    mode="stagger"
+    class="mt-[var(--space-section-y-sm)] grid gap-[var(--space-stack)] sm:grid-cols-3"
+  >
+    {
+      t.items.map((item, i) => {
+        const stat = STATS[i];
+        const realFact = `${stat.countTo}${stat.suffix}`;
+        return (
+          <div class="flex flex-col items-center text-center sm:items-start sm:text-start">
+            <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-cream-50/10 text-clay">
+              <Icon name={STAT_ICONS[i]} class="h-6 w-6" />
+            </span>
+            {/* Server text IS the real fact → no-JS/crawler/.sr-only truth; count-up
+               animates a fresh aria-hidden 0→N sibling over it. */}
+            <span
+              data-count-up
+              data-count-to={stat.countTo}
+              data-count-suffix={stat.suffix || undefined}
+              class="mt-5 font-display text-display font-semibold tabular-nums text-cream-50"
+            >
+              {realFact}
+            </span>
+            <span class="mt-1 text-body text-cream-50/85">{item.label}</span>
+          </div>
+        );
+      })
+    }
+  </Reveal>
+</Section>

@@ -13,6 +13,7 @@
  */
 import Section from "../Section.astro";
 import Reveal from "../Reveal.astro";
+import Eyebrow from "../Eyebrow.astro";
 import Card from "../Card.astro";
 import Icon from "../icons/Icon.astro";
 import BlobDivider from "../motifs/BlobDivider.astro";
@@ -48,10 +49,13 @@ const SPANS = [
   />
 
   <div class="max-w-prose">
+    <Reveal mode="slide-y">
+      <Eyebrow>{t.eyebrow}</Eyebrow>
+    </Reveal>
     <Reveal
       as="h2"
       mode="slide-y"
-      class="text-balance font-display text-h2 font-semibold text-ink"
+      class="mt-4 text-balance font-display text-h2 font-semibold text-ink"
     >
       {t.heading}
     </Reveal>
@@ -91,7 +95,7 @@ const SPANS = [
             </span>
             <h3
               class:list={[
-                "mt-4 font-display text-h3 font-semibold",
+                "mt-4 text-balance font-display text-h3 font-semibold",
                 isHero ? "text-cream-50" : "text-ink",
               ]}
             >
