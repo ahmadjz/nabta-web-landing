@@ -1,12 +1,18 @@
 ---
 /**
- * Testimonials (LVR-TASK-06) — editorial quote cards on the warm cream ground. Each
- * card is a `Card` panel with a clay-tinted `QuoteMark` bleeding behind the quote
- * (decorative, aria-hidden, clipped by the card). The featured first card spans two
- * columns on `lg`. The quote sets in the display face, italic, at `text-lead`, with
- * a logical `border-s-2 ps-4` rule; the avatar is a `rounded-full ring-2 ring-sage`
- * astro:assets `<Image>` (intrinsic dims → no CLS). The placeholder badge is
- * clay-toned (`bg-clay-100 text-clay-700`).
+ * Testimonials (LVR-06 · restyled LPV2-06) — editorial quote cards on the warm
+ * cream ground. Each card is a `Card` panel with a clay-tinted `QuoteMark` bleeding
+ * behind the quote (decorative, aria-hidden, clipped by the card). The FEATURED
+ * first card spans two columns on `lg` and is set apart: its quote sets at
+ * `text-h3` (vs the others' `text-lead`) behind an oversized quote glyph, so the
+ * strongest proof leads the block. Cards reveal on a `stagger` cadence and lift on
+ * hover (Card's `shadow-leaf`); the caption is pinned to the card foot (`mt-auto`)
+ * so rows align despite uneven quote heights.
+ *
+ * Placeholder-honest (pre-launch): the subheading + a clay `placeholderBadge` say
+ * these are SAMPLE users; the avatar is the shared decorative placeholder
+ * (`alt=""`, intrinsic 48×48 via astro:assets → no CLS). Real portraits + names
+ * swap in at launch.
  */
 import { Image } from "astro:assets";
 import Section from "../Section.astro";
@@ -45,39 +51,53 @@ const t = getDict(locale).marketing.testimonials;
     class="mt-[var(--space-stack)] grid gap-[var(--space-stack)] sm:grid-cols-2 lg:grid-cols-3"
   >
     {
-      t.items.map((item, i) => (
-        <Card
-          class:list={[
-            "relative isolate flex flex-col overflow-hidden",
-            i === 0 && "sm:col-span-2 lg:col-span-2",
-          ]}
-        >
-          {/* Clay quote glyph bleeding behind the quote — decorative, clipped. */}
-          <QuoteMark class="pointer-events-none absolute -top-3 -start-3 -z-10 w-24 text-clay-100 [dir=rtl]:-scale-x-100" />
-          <figure class="flex h-full flex-col">
-            <span class="self-start rounded-full bg-clay-100 px-2 py-0.5 text-xs font-medium text-clay-700">
-              {t.placeholderBadge}
-            </span>
-            <blockquote class="mt-4 border-s-2 border-clay-200 ps-4 font-display text-lead italic text-ink">
-              {item.quote}
-            </blockquote>
-            <figcaption class="mt-5 flex items-center gap-3">
-              <Image
-                src={avatar}
-                alt=""
-                width={48}
-                height={48}
-                loading="lazy"
-                class="rounded-full ring-2 ring-sage-200"
-              />
-              <div>
-                <p class="font-semibold text-ink">{item.name}</p>
-                <p class="text-small text-ink-700">{item.role}</p>
-              </div>
-            </figcaption>
-          </figure>
-        </Card>
-      ))
+      t.items.map((item, i) => {
+        const featured = i === 0;
+        return (
+          <Card
+            class:list={[
+              "relative isolate flex flex-col overflow-hidden",
+              featured && "sm:col-span-2 lg:col-span-2",
+            ]}
+          >
+            {/* Clay quote glyph bleeding behind the quote — decorative, clipped;
+                oversized on the featured card so the lead quote reads first. */}
+            <QuoteMark
+              class:list={[
+                "pointer-events-none absolute -top-3 -start-3 -z-10 text-clay-100 [dir=rtl]:-scale-x-100",
+                featured ? "w-36" : "w-24",
+              ]}
+            />
+            <figure class="flex h-full flex-col">
+              <span class="self-start rounded-full bg-clay-100 px-2 py-0.5 text-xs font-medium text-clay-700">
+                {t.placeholderBadge}
+              </span>
+              <blockquote
+                class:list={[
+                  "mt-4 border-s-2 border-clay-200 ps-4 font-display italic text-ink",
+                  featured ? "text-h3" : "text-lead",
+                ]}
+              >
+                {item.quote}
+              </blockquote>
+              <figcaption class="mt-auto flex items-center gap-3 pt-6">
+                <Image
+                  src={avatar}
+                  alt=""
+                  width={48}
+                  height={48}
+                  loading="lazy"
+                  class="rounded-full ring-2 ring-sage-200"
+                />
+                <div>
+                  <p class="font-semibold text-ink">{item.name}</p>
+                  <p class="text-small text-ink-700">{item.role}</p>
+                </div>
+              </figcaption>
+            </figure>
+          </Card>
+        );
+      })
     }
   </Reveal>
 </Section>

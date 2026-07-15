@@ -31,7 +31,9 @@ const t = getDict(locale).marketing.whatIs;
     class="absolute -bottom-12 -end-10 w-80 text-sage-200/40 [dir=rtl]:-scale-x-100"
   />
 
-  <div class="grid gap-[var(--space-stack)] md:grid-cols-[1fr_1.4fr] md:gap-12">
+  <div
+    class="grid gap-[var(--space-stack)] md:grid-cols-[1fr_1.5fr] md:gap-x-14"
+  >
     {/* ── Start rail: kicker + display heading + frond accent ───────────── */}
     <div>
       <Reveal mode="slide-y">
@@ -52,10 +54,10 @@ const t = getDict(locale).marketing.whatIs;
     }
     <Reveal
       mode="slide-y"
-      class="max-w-prose md:border-s md:border-sage-200 md:ps-10"
+      class="max-w-prose md:border-s md:border-sage-200 md:ps-12"
     >
       <p class="text-lead text-ink-700">{t.body1}</p>
-      <p class="mt-4 text-body text-ink-700">{t.body2}</p>
+      <p class="mt-5 text-body text-ink-700">{t.body2}</p>
     </Reveal>
   </div>
 </Section>

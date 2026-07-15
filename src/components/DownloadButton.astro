@@ -50,7 +50,15 @@ const isLive = PLAY_STORE_URL.trim() !== "";
       data-download-cta
       data-state="disabled"
     >
-      {t.label}
+      {/* Explicit space so the label + badge read "…app coming soon" as ONE
+          visible string. Astro trims the whitespace-only node between an
+          expression and an element, which would otherwise concatenate the two
+          ("…appComing soon") — and since the accessible name (aria-label) DOES
+          have the space, that runs-together visible text stops being a substring
+          of it and trips WCAG 2.5.3 Label-in-Name (Lighthouse
+          `label-content-name-mismatch`). axe strips the em-dash as punctuation, so
+          the separator — not the em-dash — is the real fix (marketing.test). */}
+      {t.label}{" "}
       <span class="rounded-full bg-surface px-2 py-0.5 text-xs font-bold uppercase tracking-wide text-ink-700">
         {t.comingSoon}
       </span>

@@ -1,20 +1,31 @@
 ---
 /**
- * DownloadCTA (LVR-TASK-07) — the full-bleed forest band. `Section tone="forest"`
- * paints `bg-primary-900 text-cream` AND adds `.forest-band`, which switches the
- * `:focus-visible` ring to cream (global.css) so a focused control stays visible on
- * the dark ground. A low-opacity `MeshGradient` + a corner `LeafCluster` wash the
- * band (decorative, aria-hidden, via the Section `motif` slot).
+ * DownloadCTA (LVR-07 · restyled LPV2-06) — the full-bleed forest band.
+ * `Section tone="forest"` paints `bg-primary-900 text-cream` AND adds
+ * `.forest-band`, which switches the `:focus-visible` ring to cream (global.css)
+ * so a focused control stays visible on the dark ground. A low-opacity
+ * `MeshGradient` + a corner `LeafCluster` wash the band (decorative, aria-hidden,
+ * via the Section `motif` slot).
+ *
+ * Contrast (LPV2-01 locked pair `cream`-on-`primary-900` ≈ 4.53:1): the heading is
+ * FULL `cream-50`; body + note sit at 90% / 80% cream, ABOVE the locked pair's
+ * headroom (raising alpha only improves contrast — Lighthouse a11y=100 is the
+ * authority). The ghost secondary stays the LIGHT variant (dark-on-light + a cream
+ * ring), never clay — white-on-clay (~3.4:1) fails AA on this band.
  *
  * The disabled "coming soon" CTA reuses `DownloadButton` UNCHANGED (its
- * `data-state="disabled"` contract is asserted by marketing.test + contact-cta.test).
- * A secondary GHOST `Button` (a real focusable `<a href="#contact">`) anchors to the
- * Contact section — and is what exercises the forest-band cream focus ring. It uses
- * the ghost (light) variant, NOT clay, because white-on-clay (~3.4:1) fails AA on
- * this band; the light ghost keeps dark-on-light text + a cream ring on the dark.
+ * `data-download-cta`/`data-state="disabled"` contract is asserted by
+ * marketing.test + contact-cta.test). LPV2-06 opts it into the LPV2-04 magnetic
+ * pull via the SAME two-wrapper shape as the Hero: the OUTER span is the Reveal
+ * stagger's direct child (owns the CSS entrance transform), the INNER
+ * `[data-magnetic]` span owns the WAAPI pull transform — separate elements so the
+ * two never fight over one `transform`. The pull is a `pointer:fine` desktop
+ * nicety: a no-op on touch and static under reduce-motion / the in-page toggle
+ * (magnetic.ts gates on `isEffectiveMotionOff()`), and never moves the disabled
+ * control's role/label.
  *
- * MeshGradient gets a distinct `idSuffix` so its gradient IDs don't collide with the
- * Hero's AmbientBackdrop MeshGradient on the same page (duplicate-id a11y failure).
+ * MeshGradient gets a distinct `idSuffix` so its gradient IDs don't collide with
+ * the Hero's AmbientBackdrop MeshGradient on the same page (duplicate-id a11y fail).
  */
 import Section from "../Section.astro";
 import Reveal from "../Reveal.astro";
@@ -39,7 +50,7 @@ const t = getDict(locale).marketing.download;
   <MeshGradient
     slot="motif"
     idSuffix="cta"
-    class="absolute inset-0 h-full w-full opacity-[0.12]"
+    class="absolute inset-0 h-full w-full opacity-[0.16]"
   />
   <LeafCluster
     slot="motif"
@@ -55,17 +66,28 @@ const t = getDict(locale).marketing.download;
       {t.heading}
     </Reveal>
     <Reveal mode="slide-y" class="mt-4">
-      <p class="mx-auto max-w-xl text-lead text-cream-50/85">{t.body}</p>
+      <p class="mx-auto max-w-xl text-pretty text-lead text-cream-50/90">
+        {t.body}
+      </p>
     </Reveal>
 
     <Reveal
       mode="stagger"
-      class="mt-8 flex flex-wrap items-center justify-center gap-4"
+      class="mt-[var(--space-stack)] flex flex-wrap items-center justify-center gap-4"
     >
-      <DownloadButton locale={locale} />
+      {
+        /* Magnetic primary CTA (LPV2-04 hook, opted in at LPV2-06): OUTER span =
+           the stagger's entrance-transform child, INNER [data-magnetic] span = the
+           pointer-pull transform. Disabled coming-soon contract is untouched. */
+      }
+      <span class="inline-flex">
+        <span class="inline-flex" data-magnetic>
+          <DownloadButton locale={locale} />
+        </span>
+      </span>
       <Button variant="ghost" href="#contact">{t.secondaryLabel}</Button>
     </Reveal>
 
-    <p class="mt-4 text-small text-cream-50/70">{t.note}</p>
+    <p class="mt-4 text-small text-cream-50/80">{t.note}</p>
   </div>
 </Section>

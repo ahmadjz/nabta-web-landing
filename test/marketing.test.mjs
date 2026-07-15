@@ -86,6 +86,64 @@ test("no marketing string is left blank in either locale", () => {
   );
 });
 
+test("disabled download CTA: accessible name contains the visible label (WCAG 2.5.3, both locales)", () => {
+  // The disabled "coming soon" CTA renders its VISIBLE text as `cta.label` + the
+  // `cta.comingSoon` badge, while its accessible name is `cta.ariaComingSoon`.
+  // WCAG 2.5.3 (Label in Name) requires the accessible name to CONTAIN the visible
+  // label as a contiguous substring — Lighthouse flags a mismatch as
+  // `label-content-name-mismatch`. An em-dash between the two, or a different verb
+  // (ar `تحميل` vs the visible `حمّل`), breaks the substring. The axe rule doesn't
+  // fire under RTL, so this test — not Lighthouse — keeps the ar dict correct too.
+  const norm = (s) => s.toLowerCase().replace(/\s+/g, " ").trim();
+  for (const [loc, cta] of [
+    ["ar", ar.marketing.cta],
+    ["en", en.marketing.cta],
+  ]) {
+    const visible = norm(`${cta.label} ${cta.comingSoon}`);
+    const accessible = norm(cta.ariaComingSoon);
+    assert.ok(
+      accessible.includes(visible),
+      `${loc}: aria "${cta.ariaComingSoon}" must contain the visible label "${cta.label} ${cta.comingSoon}" as a contiguous substring (WCAG 2.5.3 Label in Name)`,
+    );
+  }
+});
+
+test("disabled download CTA: RENDERED visible text stays inside the accessible name (WCAG 2.5.3, both dist homes)", () => {
+  // The dict test above is necessary but not sufficient: axe compares the RENDERED
+  // DOM. Astro trims the whitespace-only node between `{t.label}` and the badge
+  // <span>, so without an explicit separator the built markup concatenates them
+  // ("…appComing soon") and the visible text is NO LONGER a substring of the
+  // accessible name — Lighthouse's `label-content-name-mismatch` fires (weight-0,
+  // so a11y stays 100 and CI's gated Lighthouse can't catch it — this test does).
+  // Faithfully mirror axe: strip tags to "" (axe joins text nodes with no
+  // separator), strip punctuation, collapse whitespace, lowercase, then require
+  // containment. Runs on `dist` AFTER build (CI orders build → test).
+  const curate = (s) =>
+    s
+      .toLowerCase()
+      .replace(/[^\p{L}\p{N}\s]/gu, " ") // axe removes punctuation from BOTH sides
+      .replace(/\s+/g, " ")
+      .trim();
+  for (const [page, cta] of [
+    ["index.html", ar.marketing.cta],
+    [join("en", "index.html"), en.marketing.cta],
+  ]) {
+    const html = readFileSync(join(DIST, page), "utf8");
+    const el = html.match(
+      /<span[^>]*data-download-cta[^>]*>[\s\S]*?<\/span>\s*<\/span>/,
+    );
+    assert.ok(el, `${page}: disabled download CTA element not found in dist`);
+    // Tags → "" (NOT a space): axe concatenates inline text nodes with no
+    // separator, so this reproduces the run-together gotcha faithfully.
+    const visible = curate(el[0].replace(/<[^>]+>/g, ""));
+    const accessible = curate(cta.ariaComingSoon);
+    assert.ok(
+      accessible.includes(visible),
+      `${page}: rendered visible text "${visible}" is not contained in the accessible name "${accessible}" — add a separator between the label and the badge (WCAG 2.5.3)`,
+    );
+  }
+});
+
 test("build emitted ar `/` and en `/en/` home routes", () => {
   assert.ok(
     existsSync(join(DIST, "index.html")),
