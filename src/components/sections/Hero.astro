@@ -25,6 +25,7 @@ import Card from "../Card.astro";
 import AmbientBackdrop from "../AmbientBackdrop.astro";
 import LeafCluster from "../motifs/LeafCluster.astro";
 import VineFlourish from "../motifs/VineFlourish.astro";
+import Frond from "../motifs/Frond.astro";
 import Icon from "../icons/Icon.astro";
 
 interface Props {
@@ -37,6 +38,7 @@ const t = getDict(locale).marketing.hero;
 
 <section
   class="relative isolate overflow-hidden bg-gradient-to-b from-primary-50 to-cream"
+  data-hero-signature
 >
   {
     /* Corner vine flourish bleeding off the END edge; mirrors its curl in RTL. */
@@ -44,6 +46,51 @@ const t = getDict(locale).marketing.hero;
   <VineFlourish
     class="pointer-events-none absolute -top-6 -end-16 -z-10 w-64 text-sage-200/70 [dir=rtl]:-scale-x-100"
   />
+
+  {
+    /* ── Signature layer (LPV2-03): pointer-reactive layered foliage ──────────
+       The site's one Motion island. Decorative + out-of-flow + click-through +
+       BEHIND content (mirrors AmbientBackdrop's contract). Desktop-only
+       (`lg:block`) — the reactive layer is a `pointer:fine` nicety — and its
+       footprint is capped + clustered on the botanical END side so it never
+       out-paints the LCP `<h1>` (which lives in the START text column). Each
+       `.hero-foliage__layer` is parallaxed toward the pointer by hero-signature.ts
+       (Motion springs, armed after first paint); the inner `.hero-foliage__drift`
+       carries a gentle idle bob. Static under reduce-motion / the in-page toggle
+       (the island gates on `isEffectiveMotionOff()` — Motion has none of its own). */
+  }
+  <div
+    class="hero-foliage pointer-events-none absolute inset-0 -z-10 hidden overflow-hidden lg:block"
+    aria-hidden="true"
+  >
+    {/* back — slow + faint */}
+    <span
+      class="hero-foliage__layer absolute end-[7%] top-[14%] block w-44 text-sage-200/35 will-change-transform"
+      data-depth="0.35"
+    >
+      <span class="hero-foliage__drift block">
+        <Frond class="block h-auto w-full" />
+      </span>
+    </span>
+    {/* mid */}
+    <span
+      class="hero-foliage__layer absolute end-[30%] top-[48%] block w-28 text-primary-200/40 will-change-transform"
+      data-depth="0.6"
+    >
+      <span class="hero-foliage__drift block">
+        <LeafCluster class="block h-auto w-full" />
+      </span>
+    </span>
+    {/* front — largest travel; the directional vine mirrors its curl in RTL */}
+    <span
+      class="hero-foliage__layer absolute bottom-[12%] end-[11%] block w-40 text-sage-200/30 will-change-transform"
+      data-depth="0.95"
+    >
+      <span class="hero-foliage__drift block">
+        <VineFlourish class="block h-auto w-full [dir=rtl]:-scale-x-100" />
+      </span>
+    </span>
+  </div>
 
   <div
     class="mx-auto grid max-w-editorial gap-[var(--space-gutter)] px-[var(--space-gutter)] py-[var(--space-section-y)] lg:grid-cols-12 lg:items-center lg:gap-12"
@@ -95,7 +142,22 @@ const t = getDict(locale).marketing.hero;
       </Reveal>
 
       <Reveal mode="stagger" class="mt-8 flex flex-wrap items-center gap-4">
-        <DownloadButton locale={locale} />
+        {
+          /* Magnetic primary CTA (LPV2-04): the download CTA is gently pulled
+             toward a nearby pointer (magnetic.ts, reusing the Motion spring from
+             03), a `pointer:fine` desktop nicety that is a no-op on touch and
+             static under reduce-motion / the in-page toggle. TWO wrappers on
+             purpose: the OUTER span is the Reveal stagger's direct child (it owns
+             the ENTRANCE transform, a CSS transition), the INNER `[data-magnetic]`
+             span owns the PULL transform (a WAAPI spring) — kept on separate
+             elements so the two never fight over one element's `transform`. The
+             disabled-CTA contract (`data-download-cta`/`data-state`) is untouched. */
+        }
+        <span class="inline-flex">
+          <span class="inline-flex" data-magnetic>
+            <DownloadButton locale={locale} />
+          </span>
+        </span>
         <Button variant="ghost" href="#what-is-nabta">{t.ctaSecondary}</Button>
       </Reveal>
     </div>

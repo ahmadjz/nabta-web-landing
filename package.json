@@ -23,6 +23,7 @@
     "@fontsource/tajawal": "^5.2.7",
     "@tailwindcss/vite": "^4.3.1",
     "astro": "^7.0.2",
+    "motion": "^12.42.2",
     "tailwindcss": "^4.3.1"
   },
   "devDependencies": {

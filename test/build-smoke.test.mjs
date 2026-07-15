@@ -59,10 +59,20 @@ test("ar + en home routes were emitted", () => {
 // LVR-03: ClientRouter is the FIRST runtime JS on this zero-JS site. Prove every
 // emitted `<script src>` is same-origin + base-prefixed (a bare-/path script src
 // would 404 on the GitHub-Pages sub-path) and that the script-src COUNT stays
-// bounded — a backstop against runaway script injection. The bound allows the
-// ClientRouter runtime + a potentially-externalized reveal/count-up bundle + the
-// prefetch runtime + headroom; today only the ClientRouter chunk is external (the
-// motion bundle is small enough that Astro inlines it).
+// bounded — a backstop against runaway script injection. The bound also covers the
+// `motion` vendor code (LPV2-03 / ADR-41): whether Vite inlines it into the shared
+// chunk or splits it into `_astro/`, it is still same-origin + base-prefixed here.
+//
+// MEASURED post-build (LPV2-03, after consolidating ALL client scripts into the one
+// Base.astro module block + adding the `motion` island) = 2 external chunks per page:
+//   1. ClientRouter.astro_…js       — the Astro view-transitions runtime
+//   2. Base.astro_…js               — the single shared module chunk; bundles
+//                                     motion-pref + reveal + count-up + hero-signature
+//                                     AND `motion` inlined (Vite kept it in-chunk, no
+//                                     separate vendor split at this size).
+// So the count is 2, comfortably ≤ MAX_SCRIPT_SRC. Kept TIGHT at 4 (headroom for a
+// future vendor split / prefetch runtime) — NOT reflexively bumped. Bump ONLY if a
+// measured count demands it, and enumerate the new chunk here when you do.
 test("every <script src> is same-origin, base-prefixed, and the count is bounded", () => {
   const MAX_SCRIPT_SRC = 4;
   for (const page of ["index.html", join("en", "index.html")]) {
