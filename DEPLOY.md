@@ -80,16 +80,33 @@ Expect `200` for every page and the asset.
 
 ### Motion / RTL / reduce-motion = a MANUAL browser check
 
-The curl matrix only proves the pages and assets **serve**. The redesign's runtime
-behaviour — `ClientRouter` fade transitions, scroll-reveal fire, the ambient hero
-motif drift, **`prefers-reduced-motion` collapsing to instant content**, and correct
-**Arabic RTL mirroring** — **cannot be curl'd**. CI gates it headlessly
-(`scripts/preview-smoke.mjs` + `motion-a11y.test.mjs`), but after a deploy do a quick
-**manual browser pass on the live URL**: load `…/nabta-web-landing/`, watch a section
-reveal on scroll and the hero ambience play, toggle ar↔en and confirm the layout
-mirrors (`<html dir>` flips, display face swaps), then re-load with
-`prefers-reduced-motion: reduce` (DevTools → Rendering → *Emulate CSS media feature*)
-and confirm content appears **instantly** (no fade-in, no drift). Note any finding.
+The curl matrix only proves the pages and assets **serve**. The site's runtime
+behaviour **cannot be curl'd**. CI gates it headlessly (`scripts/preview-smoke.mjs` +
+`motion-a11y.test.mjs` — the reduce-motion / toggle / LCP / coarse-pointer proofs run
+in a real Chrome, `REQUIRE_HEADLESS=1`, never a silent skip), but after a deploy still
+do a quick **manual browser pass on the live URL**. Load `…/nabta-web-landing/` on a
+fine-pointer (desktop) device and confirm:
+
+- **Signature hero foliage** — the layered motifs drift/parallax under the pointer at
+  ~60fps (the one bundled `motion` island, `pointer:fine` only). The `<h1>` is opaque
+  from first paint (never waits on JS).
+- **Scroll choreography** — sections enter on scroll and the Screenshots thumbs
+  parallax as you scroll past.
+- **Magnetic CTA** — the primary download CTA eases toward a fine pointer; it is
+  **inert on touch** (coarse pointer = no drift).
+- **Count-up stats** — the impact numbers animate up to the **real** figure (and the
+  no-JS / screen-reader text already reads that real figure, never `0`).
+- **ar↔en swap** — toggle the language and confirm the layout mirrors (`<html dir>`
+  flips rtl↔ltr, the display face swaps) with the crossfade, and the header
+  wordmark/dir is correct on the swapped-in page (never a stale RTL header on `/en/`).
+- **Both reduce signals make it static, independently.** (1) Re-load with
+  `prefers-reduced-motion: reduce` (DevTools → Rendering → *Emulate CSS media
+  feature*) and (2) with OS preference OFF, click the **in-page motion toggle**
+  (`aria-pressed`, persists across reload + swap). Each on its own must collapse
+  everything — reveals, ambient/signature drift, scroll timeline, magnetic pull — to
+  **instant/static content** (no fade-in, no drift, no parallax).
+
+Note any finding.
 
 ## One-time setup (already done — reference only)
 
