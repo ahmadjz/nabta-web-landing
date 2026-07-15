@@ -16,6 +16,17 @@
  * Scales hold each anchor's hue, sliding lightness + chroma. NOTE: `--space-*`,
  * `--dur-*`, `--stagger` and the `--text-*--*` companions are not Tailwind utility
  * namespaces — they are plain design tokens consumed via `var(...)`.
+ *
+ * LPV2-TASK-01 re-tunes that botanical palette for a fresher v2 look: greens/sage/
+ * clay chroma enriched and the dark shades deepened (crisper, more alive), cream
+ * nudged a hair warmer, ink crisped, plus a small type/section-rhythm refresh — all
+ * WITHOUT any section markup change. Token NAMES are unchanged. `--color-primary`
+ * (+ `--color-ring`) stay BYTE-IDENTICAL (brand snapshot). The re-tune is gated by
+ * a correct OKLCH→OKLab→linear-sRGB→WCAG contrast calc (test/contrast.test.mjs);
+ * two floors are LOCKED there: `clay-700`-on-`cream` ≥ 4.5 (Eyebrow) and
+ * `cream`-on-`primary-900` ≥ 4.5 (forest band). The genuinely razor-thin pair is
+ * `primary`-on-`cream` = 4.53:1 (a link on a cream ground) — so `--color-primary`
+ * is frozen and `--color-cream` may never be darkened.
  */
 @theme {
   /* ── Brand green — #2E7D32, byte-identical to the admin snapshot ── */
@@ -23,42 +34,42 @@
   --color-ring: oklch(0.524 0.135 144.2);
   /* Green scale (same hue) — tints up, the forest band down. primary-900 is the
      full-bleed forest CTA band; white text + focus ring stay AA-visible on it. */
-  --color-primary-50: oklch(0.971 0.018 144.2);
-  --color-primary-100: oklch(0.938 0.038 144.2);
-  --color-primary-200: oklch(0.882 0.064 144.2);
-  --color-primary-300: oklch(0.802 0.094 144.2);
-  --color-primary-600: oklch(0.47 0.128 144.2);
-  --color-primary-700: oklch(0.41 0.11 144.2);
-  --color-primary-900: oklch(0.285 0.072 144.2);
+  --color-primary-50: oklch(0.972 0.021 144.2);
+  --color-primary-100: oklch(0.94 0.044 144.2);
+  --color-primary-200: oklch(0.884 0.072 144.2);
+  --color-primary-300: oklch(0.805 0.104 144.2);
+  --color-primary-600: oklch(0.472 0.138 144.2);
+  --color-primary-700: oklch(0.405 0.12 144.2);
+  --color-primary-900: oklch(0.272 0.08 144.2);
 
   /* ── Sage — #8FAE7A, the soft secondary green ── */
-  --color-sage: oklch(0.714 0.08 133.2);
-  --color-sage-100: oklch(0.94 0.03 133.2);
-  --color-sage-200: oklch(0.882 0.05 133.2);
-  --color-sage-700: oklch(0.47 0.066 133.2);
+  --color-sage: oklch(0.716 0.09 133.2);
+  --color-sage-100: oklch(0.942 0.035 133.2);
+  --color-sage-200: oklch(0.884 0.057 133.2);
+  --color-sage-700: oklch(0.468 0.074 133.2);
 
   /* ── Cream — #F4F1E8, the warm paper background ── */
-  --color-cream: oklch(0.958 0.012 91.5);
-  --color-cream-50: oklch(0.978 0.008 91.5);
-  --color-cream-deep: oklch(0.928 0.018 91.5);
+  --color-cream: oklch(0.959 0.014 88);
+  --color-cream-50: oklch(0.979 0.01 88);
+  --color-cream-deep: oklch(0.929 0.022 88);
 
   /* ── Clay — #C8794F, the terracotta accent ── */
   --color-clay: oklch(0.653 0.114 47.9);
-  --color-clay-100: oklch(0.928 0.03 47.9);
-  --color-clay-200: oklch(0.872 0.052 47.9);
-  --color-clay-600: oklch(0.598 0.118 47.9);
-  --color-clay-700: oklch(0.52 0.104 47.9);
+  --color-clay-100: oklch(0.93 0.035 47.9);
+  --color-clay-200: oklch(0.874 0.06 47.9);
+  --color-clay-600: oklch(0.596 0.128 47.9);
+  --color-clay-700: oklch(0.516 0.114 47.9);
 
   /* ── Ink — #1F2937, body text + headings ── */
-  --color-ink: oklch(0.278 0.03 256.8);
-  --color-ink-700: oklch(0.372 0.03 256.8);
+  --color-ink: oklch(0.272 0.032 256.8);
+  --color-ink-700: oklch(0.368 0.032 256.8);
   --color-ink-500: oklch(0.52 0.028 256.8);
   --color-ink-300: oklch(0.68 0.022 256.8);
 
   /* ── Surfaces + hairlines ── */
   --color-surface: oklch(1 0 0);
-  --color-surface-muted: oklch(0.968 0.01 91.5);
-  --color-line: oklch(0.908 0.01 133.2);
+  --color-surface-muted: oklch(0.969 0.012 88);
+  --color-line: oklch(0.906 0.012 133.2);
 
   /* ── Fonts ──
      Display (Latin): Fraunces Variable. Display (Arabic): Tajawal. Body: Cairo.
@@ -84,9 +95,9 @@
   --text-h3--line-height: 1.22;
   --text-h3--letter-spacing: -0.01em;
   --text-lead: clamp(1.125rem, 1.04rem + 0.42vw, 1.375rem);
-  --text-lead--line-height: 1.6;
+  --text-lead--line-height: 1.65;
   --text-body: 1rem;
-  --text-body--line-height: 1.7;
+  --text-body--line-height: 1.72;
   --text-small: 0.875rem;
   --text-small--line-height: 1.6;
   --text-eyebrow: 0.8125rem;
@@ -94,12 +105,15 @@
   --text-eyebrow--letter-spacing: 0.14em;
 
   /* ── Spacing + editorial containers (plain tokens, consumed via var()) ── */
-  --space-section-y: clamp(4rem, 2.4rem + 8vw, 8rem);
-  --space-section-y-sm: clamp(2.5rem, 1.8rem + 3.5vw, 4.5rem);
+  --space-section-y: clamp(4.5rem, 2.6rem + 8vw, 8.5rem);
+  --space-section-y-sm: clamp(2.75rem, 1.9rem + 3.5vw, 5rem);
   --space-stack: 1.5rem;
   --space-gutter: clamp(1rem, 0.6rem + 2vw, 2rem);
   --container-editorial: 72rem;
   --container-prose: 44rem;
+  /* Sticky-header height reserved as scroll-margin on in-page anchor targets so a
+     navigated/focused destination clears the bar (WCAG 2.4.11, LPV2-02). */
+  --header-h: 5rem;
 
   /* ── Radius — keep the snapshot base, add the larger + organic blob steps ── */
   --radius: 0.625rem;
@@ -161,6 +175,16 @@
      that utility and every Arabic heading falls back to the Latin Fraunces stack
      (no Arabic glyphs → an OS serif fallback). See the utilities-layer rule. */
 
+  /* Touch UX (web-interface-guidelines, LPV2-02): drop the legacy 300ms tap delay
+     + double-tap-zoom on interactive controls. A pure touch-input hint — no
+     layout/visual change, and it never affects focus or pointer scrolling. */
+  button,
+  a,
+  summary,
+  [role="button"] {
+    touch-action: manipulation;
+  }
+
   :focus-visible {
     outline: 2px solid var(--color-ring);
     outline-offset: 2px;
@@ -170,6 +194,16 @@
   .bg-primary-900 :focus-visible,
   .forest-band :focus-visible {
     outline-color: var(--color-cream);
+  }
+
+  /* Focus-not-obscured (WCAG 2.4.11, LPV2-02): the in-page scroll/anchor
+     destinations under the STICKY Header reserve its height as scroll-margin, so
+     an anchored (`#what-is-nabta`/`#contact`) or skip-link-focused (`#main`)
+     target lands below the bar instead of hidden behind it. */
+  #main,
+  #what-is-nabta,
+  #contact {
+    scroll-margin-block-start: var(--header-h);
   }
 
   /* Global reduce-motion override (R1) — honours the OS setting for everyone:
@@ -183,6 +217,72 @@
       transition-duration: 0.001ms !important;
       scroll-behavior: auto !important;
     }
+  }
+
+  /* Motion-toggle TWIN of the reduce-motion block (R1-twin, LPV2-02). The site's
+     reveal/ambient/scroll motion is 100% CSS — a JS toggle that only flips an
+     <html> data-attr is INERT on it. So the in-page toggle (motion-pref.ts, which
+     sets html[data-motion="off"]) needs this CSS neutralisation twin mirroring the
+     @media reduce rule. `!important` beats AmbientBackdrop's INLINE
+     animation-duration on the drift leaves. Independent of the OS query, so the
+     two effective-motion signals collapse motion on their own or together.
+     The ROOT `html[data-motion="off"]` selector is deliberately included ALONGSIDE
+     the descendant forms: a descendant combinator (`html[…] *`) can never match
+     <html> itself, and <html> is the document's scrolling box + sole owner of
+     `scroll-behavior` — so without it, in-page anchors keep smooth-scrolling under
+     toggle-off (the @media reduce block matches <html> via its bare `*`). */
+  html[data-motion="off"],
+  html[data-motion="off"] *,
+  html[data-motion="off"] *::before,
+  html[data-motion="off"] *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  /* ── LPV2-04: scroll-timeline neutralisers (THE TRAP) ──────────────────────
+     The CSS scroll-driven choreography (`@layer components`, below) is linked to
+     an `animation-timeline: view()` — a PROGRESS-based timeline, not a time-based
+     one. So the two duration-collapse blocks above (`animation-duration: 0.001ms
+     !important`) do NOT stop it: a scroll/view timeline ignores animation-duration
+     entirely. Each scroll-driven animation therefore needs an EXPLICIT
+     `animation-timeline: none !important` under BOTH effective-motion signals —
+     OS reduce-motion AND the in-page toggle. Reverting to the (absent) document
+     timeline hands control back to the duration-collapse above, which then snaps
+     the animation to its keyframes' IDENTITY end-state (visible + unmoved). Both
+     forms are asserted by motion-a11y R8 (fail if only one exists). */
+  @media (prefers-reduced-motion: reduce) {
+    [data-scroll-anim],
+    [data-scroll-parallax] {
+      animation-timeline: none !important;
+    }
+  }
+  html[data-motion="off"] [data-scroll-anim],
+  html[data-motion="off"] [data-scroll-parallax] {
+    animation-timeline: none !important;
+  }
+
+  /* ── LPV2-04: view-transition crossfade fallback ───────────────────────────
+     The named crossfade (Base.astro, on a LOCALE-INVARIANT <main> — never the
+     Header/Wordmark, whose face/dir differ per locale = the H6 regression) must
+     not animate under reduce-motion OR the in-page toggle. Astro's ClientRouter
+     already self-skips its animation under the OS `prefers-reduced-motion` query,
+     but the `data-motion` toggle is OUR signal it can't see — so neutralise the
+     generated `::view-transition-*` pseudo-element tree (originated on the root
+     <html>) under BOTH. `animation: none` halts the crossfade → an instant swap.
+     The `(*)` name selector covers the named group AND the default root group. */
+  @media (prefers-reduced-motion: reduce) {
+    ::view-transition-group(*),
+    ::view-transition-old(*),
+    ::view-transition-new(*) {
+      animation: none !important;
+    }
+  }
+  html[data-motion="off"]::view-transition-group(*),
+  html[data-motion="off"]::view-transition-old(*),
+  html[data-motion="off"]::view-transition-new(*) {
+    animation: none !important;
   }
 }
 
@@ -201,6 +301,16 @@
     font-family: var(--font-display-ar);
     text-transform: none;
     letter-spacing: normal;
+  }
+
+  /* The motion toggle is a JS-only control (it flips html[data-motion] + persists
+     to localStorage). Hidden until the inline pre-paint head script proves JS is
+     available (it sets html[data-js] before first paint), so a no-JS render never
+     shows a dead button — OS prefers-reduced-motion still works without it. Lives
+     in `utilities` (like the .font-display swap) so its (0,2,1) selector outranks
+     Tailwind's generated `.inline-flex` (0,1,0) within the same layer. */
+  html:not([data-js]) [data-motion-toggle] {
+    display: none;
   }
 }
 
@@ -297,5 +407,59 @@
     animation-timing-function: var(--ease-out-soft);
     animation-iteration-count: infinite;
     will-change: transform;
+  }
+
+  /* ── LPV2-04: CSS scroll-driven choreography (near-zero-JS) ─────────────────
+     Section entrances (`[data-scroll-anim]`) + a subtle Screenshots thumb
+     parallax (`[data-scroll-parallax]`), each progress-linked to its own pass
+     through the viewport via the `view()` scroll timeline. Design invariants:
+       - transform/opacity ONLY (R2 — compositor-cheap, no reflow/CLS);
+       - translateY ONLY, so there is no literal-sign horizontal motion (R7);
+       - every keyframe RESTS at its identity end-state (`transform: none`), so
+         the dual neutralisers above (which revert to the document timeline +
+         collapse the duration) leave the element VISIBLE and UNMOVED — not frozen
+         mid-offset;
+       - these LAYER WITH (never replace) the JS Reveal fade — they run on
+         DIFFERENT elements than the Reveal wrappers and are transform-only, so
+         the scroll animation and the Reveal's opacity transition never fight over
+         one property on one element.
+     GRACEFUL DEGRADATION: the whole block is @supports-gated on view() support,
+     so a browser without scroll-timeline never sees a hidden from-state — it just
+     renders the final (visible) markup. Mirrors the reveal.ts from-state JS-gating
+     discipline (R3): no static hidden state without a support/JS guard. */
+  @supports (animation-timeline: view()) {
+    @keyframes scroll-entrance {
+      from {
+        transform: translateY(2rem);
+      }
+      to {
+        transform: none;
+      }
+    }
+    /* Section-entrance: the element rises into place as it enters the viewport. */
+    [data-scroll-anim] {
+      animation: scroll-entrance linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 100%;
+      will-change: transform;
+    }
+
+    @keyframes screenshot-parallax {
+      from {
+        transform: translateY(3rem);
+      }
+      to {
+        transform: none;
+      }
+    }
+    /* Thumb parallax: the screenshot drifts up a touch over the first half of its
+       viewport pass, then settles at identity (so the neutralised rest-state is
+       unmoved and never reveals a clip gap). */
+    [data-scroll-parallax] {
+      animation: screenshot-parallax linear both;
+      animation-timeline: view();
+      animation-range: cover 0% cover 55%;
+      will-change: transform;
+    }
   }
 }
