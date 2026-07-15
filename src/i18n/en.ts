@@ -23,14 +23,14 @@ export const en: Dict = {
     cta: {
       label: "Download the Nabta app",
       comingSoon: "Coming soon",
-      ariaComingSoon: "Download the Nabta app — coming soon, not available yet",
+      ariaComingSoon: "Download the Nabta app coming soon, not available yet",
     },
     hero: {
       eyebrow: "The Nabta app",
       title: "Everything for your plants, in one place",
       subtitle:
-        "Shop ornamental plants, get them delivered to your door, and care for them with easy steps — backed by experts and AI.",
-      ctaSecondary: "Learn more",
+        "Shop ornamental plants, get them delivered to your door, and keep them thriving — backed by experts and AI.",
+      ctaSecondary: "See how it works",
       floatingChip: {
         label: "Watering reminder",
         value: "In 2 days",
@@ -40,38 +40,39 @@ export const en: Dict = {
       eyebrow: "Get to know Nabta",
       heading: "What is Nabta?",
       body1:
-        "Nabta is an app for buying plants, but it's more than a store: it's a relationship between you and your plants, supported by experts and a smart assistant. Browse ornamental plants, get suggestions tailored to your experience and your home's conditions, then order and get them delivered with ease.",
+        "Nabta is an app for buying plants — but it's more than a store. It's a bond between you and your plants, backed by experts and a smart assistant. Browse ornamental plants, get suggestions tailored to your experience and your home, then order and have them delivered to your door.",
       body2:
-        "After you buy, each plant becomes an item in your care list with watering and fertilizing reminders, and you can ask an expert or get an AI-assisted answer whenever a problem appears.",
+        "After you buy, each plant joins your care list, with watering and fertilizing reminders. When something looks wrong, ask an expert or get an AI-assisted answer.",
     },
     features: {
+      eyebrow: "Features",
       heading: "Why Nabta?",
       subheading:
         "Everything you need to own and care for plants in a single app.",
       items: [
         {
           title: "Ornamental plant store",
-          body: "Browse and shop a range of ornamental plants with clear prices in Syrian pounds, and search that matches local, scientific, and English names together.",
+          body: "Browse ornamental plants with clear prices in Syrian pounds, and search by local, scientific, or English name.",
         },
         {
           title: "Smart suggester",
-          body: "Not sure which plant suits you? Answer a few simple questions about space, light, watering needs, and your experience level, and let Nabta suggest a curated list.",
+          body: "Not sure which plant suits you? Answer a few questions about space, light, watering, and your experience, and Nabta suggests a curated shortlist.",
         },
         {
           title: "Plant care manager",
-          body: "Every plant you own gets its own care list with watering and fertilizing schedules and reminders that reach you on time, so your plants stay healthy.",
+          body: "Every plant you own gets a care list with watering and fertilizing schedules, plus reminders that reach you on time — so your plants stay healthy.",
         },
         {
           title: "AI plant doctor",
-          body: "Send a photo and a question about a problem with your plant; the AI drafts an answer that a care expert reviews before it reaches you — trusted advice, not guesswork.",
+          body: "Send a photo and a question about an ailing plant; the AI drafts an answer, and a care expert reviews it before it reaches you — trusted advice, not guesswork.",
         },
         {
           title: "Delivery & flexible payment",
-          body: "Order your plants to your door and pay cash on delivery or by bank transfer with an uploaded receipt — payment methods the team manages flexibly.",
+          body: "Order plants to your door and pay your way — cash on delivery, or bank transfer with an uploaded receipt.",
         },
         {
           title: "Arabic-first experience",
-          body: "A full right-to-left Arabic interface with an English toggle, and prices always shown in Syrian pounds.",
+          body: "A full right-to-left Arabic interface, with an English toggle and prices always in Syrian pounds.",
         },
       ],
     },
@@ -81,20 +82,29 @@ export const en: Dict = {
       placeholderBadge: "Placeholder image",
       shots: [
         {
-          alt: "Placeholder screenshot: browsing the plant store in the Nabta app",
+          alt: "Illustrative screenshot of the Nabta plant store: ornamental-plant cards with prices in Syrian pounds",
           caption: "Browse the store",
-          body: "Browse a range of ornamental plants with clear prices in Syrian pounds, and search by local, scientific, or English name.",
+          body: "Browse ornamental plants with clear prices in Syrian pounds, and search by local, scientific, or English name — the same catalog, inside the app.",
         },
         {
-          alt: "Placeholder screenshot: the smart plant suggester",
+          alt: "Illustrative screenshot of the Nabta smart suggester: short questions that suggest a suitable plant",
           caption: "Smart suggester",
-          body: "Answer a few simple questions about space, light, watering needs, and your experience level, and the app suggests a list that suits you.",
+          body: "Answer a few questions about space, light, watering, and your experience, and the app suggests plants that suit you.",
         },
         {
-          alt: "Placeholder screenshot: the plant care list and reminders",
+          alt: "Illustrative screenshot of the Nabta care & reminders screen: watering and fertilizing schedule per plant",
           caption: "Care & reminders",
           body: "Track watering and fertilizing schedules for every plant you own, with reminders that reach you on time so your plants stay healthy.",
         },
+      ],
+    },
+    stats: {
+      heading: "Nabta by the numbers",
+      subheading: "What the Nabta app brings you — facts, not promises.",
+      items: [
+        { label: "reasons to choose Nabta" },
+        { label: "ways to care for your plants" },
+        { label: "languages, Arabic-first" },
       ],
     },
     testimonials: {
@@ -111,7 +121,7 @@ export const en: Dict = {
         },
         {
           quote:
-            "I love that I pay cash on delivery, and the delivery was fast and my plants arrived intact.",
+            "I love paying cash on delivery — and my plants arrived fast and intact.",
           name: "Sample user",
           role: "Customer",
         },
@@ -126,19 +136,19 @@ export const en: Dict = {
     faq: {
       eyebrow: "Questions & answers",
       heading: "Frequently asked questions",
-      lead: "Quick answers to the most common questions about the Nabta app and how it works.",
+      lead: "Answers to the most common questions about the Nabta app and how it works.",
       items: [
         {
           q: "Is the Nabta app available now?",
-          a: "The app is launching soon. It will be available to download on Google Play first, then on the App Store later. Follow this page for updates.",
+          a: "Not yet — it's launching soon. It'll arrive on Google Play first, then the App Store. Follow this page for updates.",
         },
         {
           q: "What can I buy on Nabta?",
-          a: "Ornamental plants of all kinds, with clear descriptions and prices and search that matches local, scientific, and English names.",
+          a: "Ornamental plants of all kinds, with clear descriptions and prices — and search by local, scientific, or English name.",
         },
         {
           q: "How does the smart suggester work?",
-          a: "You answer a few simple questions about space, light, watering needs, and your experience level, and the app suggests a suitable list of plants.",
+          a: "You answer a few questions about space, light, watering, and your experience, and the app suggests plants that suit you.",
         },
         {
           q: "My plant is sick — can Nabta help?",
@@ -155,8 +165,8 @@ export const en: Dict = {
       ],
     },
     download: {
-      heading: "Ready to get started with your plants?",
-      body: "The Nabta app will be available on Google Play soon, followed by the App Store. Bookmark this page and come back at launch.",
+      heading: "Ready to bring your plants home?",
+      body: "The Nabta app arrives on Google Play soon, with the App Store to follow. Bookmark this page and come back at launch.",
       note: "Coming soon on Google Play · App Store later",
       secondaryLabel: "Contact us",
     },
@@ -215,6 +225,7 @@ export const en: Dict = {
   },
   header: {
     langNavLabel: "Switch language",
+    reduceMotion: "Reduce motion",
   },
   footer: {
     legal: "Legal",

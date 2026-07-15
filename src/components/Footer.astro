@@ -66,13 +66,13 @@ const legalLinks = LEGAL_PAIRS.map((pair) => ({
 
     <nav aria-label={t.footer.legal}>
       <p class="text-small font-semibold text-ink">{t.footer.legal}</p>
-      <ul class="mt-3 space-y-2">
+      <ul class="mt-3 space-y-1">
         {
           legalLinks.map((link) => (
             <li>
               <a
                 href={link.href}
-                class="text-small text-ink-700 underline-offset-4 transition-colors duration-[var(--dur-fast)] hover:text-primary-700 hover:underline"
+                class="inline-flex min-h-11 items-center text-small text-ink-700 underline-offset-4 transition-colors duration-[var(--dur-fast)] hover:text-primary-700 hover:underline"
               >
                 {link.label}
               </a>
@@ -87,7 +87,7 @@ const legalLinks = LEGAL_PAIRS.map((pair) => ({
       <a
         href={`mailto:${CONTACT_EMAIL}`}
         dir="ltr"
-        class="mt-3 inline-block text-small text-ink-700 underline-offset-4 transition-colors duration-[var(--dur-fast)] hover:text-primary-700 hover:underline"
+        class="mt-2 inline-flex min-h-11 items-center text-small text-ink-700 underline-offset-4 transition-colors duration-[var(--dur-fast)] hover:text-primary-700 hover:underline"
       >
         {CONTACT_EMAIL}
       </a>

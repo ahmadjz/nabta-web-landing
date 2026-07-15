@@ -39,6 +39,26 @@ const t = getDict(locale);
 <!doctype html>
 <html lang={locale} dir={dir}>
   <head>
+    {
+      /* Inline PRE-PAINT motion script (LPV2-02). Runs synchronously during head
+       parse — before the body paints and before reveal.ts sets data-motion-ready —
+       so it (a) marks JS available (reveals the JS-only motion toggle, no dead
+       button on a no-JS render) and (b) stamps html[data-motion="off"] from the
+       persisted preference, so a reload of a motion-off page can't flash motion.
+       Kept tiny + dependency-free; the full wiring lives in motion-pref.ts. */
+    }
+    <script is:inline>
+      (function () {
+        const el = document.documentElement;
+        el.setAttribute("data-js", "");
+        try {
+          if (localStorage.getItem("nabta-motion") === "off")
+            el.setAttribute("data-motion", "off");
+        } catch {
+          /* localStorage blocked — motion defaults on, OS reduce still applies */
+        }
+      })();
+    </script>
     <BaseHead
       pageKey={pageKey}
       locale={locale}
@@ -68,20 +88,46 @@ const t = getDict(locale);
     {
       /* tabindex="-1" makes the skip-link target focusable: activating the
        skip-link moves focus here (WCAG 2.4.1), and this must survive a
-       ClientRouter swap — asserted by the preview-smoke headless leg (LVR-03). */
+       ClientRouter swap — asserted by the preview-smoke headless leg (LVR-03).
+
+       transition:name="page-canvas" (LPV2-04): give the main region its OWN named
+       view-transition group so it crossfades independently (Astro's default
+       animation IS a fade — no directional slide). Deliberately on <main>, a
+       LOCALE-INVARIANT element (identical tag/id/attrs on every page + locale),
+       NOT the Header/Wordmark: a `transition:name` SNAPSHOTS + crossfades (it does
+       NOT `transition:persist` a live node), so — unlike the H6 regression — it can
+       never leave a stale RTL header / wrong-face Wordmark on an LTR page. The
+       crossfade is neutralised under reduce-motion (Astro self-skips) AND the
+       in-page toggle (the `::view-transition-*` fallback in global.css). */
     }
-    <main id="main" tabindex="-1" class="flex-1">
+    <main id="main" tabindex="-1" class="flex-1" transition:name="page-canvas">
       <slot />
     </main>
     <Footer locale={locale} />
     {
-      /* Motion machinery — bundled to same-origin /_astro (module, deferred). Both
-       re-init on `astro:page-load`, so reveals re-fire after a ClientRouter swap
-       (LVR-03). Inert until a section emits [data-reveal]/[data-count-up]. */
+      /* Motion machinery — bundled to same-origin /_astro (module, deferred). All
+       re-init on `astro:page-load`, so they re-fire after a ClientRouter swap
+       (LVR-03). Inert until a section emits [data-reveal]/[data-count-up]/
+       [data-hero-signature]. motion-pref.ts (LPV2-02) re-applies the persisted
+       motion preference across swaps + wires the toggle button. ALL client scripts
+       are consolidated into THIS single module block, so Astro emits one shared
+       motion chunk (+ the `motion` vendor chunk for hero-signature.ts, the scoped
+       ban-lift island, LPV2-03 / ADR-41) rather than a script per file. */
+    }
+    {
+      /* ORDER MATTERS: motion-pref.ts MUST be imported first. Every module here
+       registers its init on the same document `astro:page-load`, and listeners fire
+       in registration order — motion-pref.ts re-stamps html[data-motion] from storage
+       on a swap (the swapped-in <html> arrives without it), and the islands below read
+       that attr via isEffectiveMotionOff(). Reordering would let an island read a
+       stale/absent attr on the first swap → a brief reduced-motion violation. */
     }
     <script>
+      import "../scripts/motion-pref.ts";
       import "../scripts/reveal.ts";
       import "../scripts/count-up.ts";
+      import "../scripts/hero-signature.ts";
+      import "../scripts/magnetic.ts";
     </script>
   </body>
 </html>

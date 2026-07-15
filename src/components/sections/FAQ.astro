@@ -53,12 +53,12 @@ const t = getDict(locale).marketing.faq;
       {
         /* ── Accordion list (end) ─────────────────────────────────────────── */
       }
-      <Reveal mode="stagger" class="flex flex-col gap-3">
+      <Reveal mode="stagger" class="flex flex-col gap-3.5">
         {
           t.items.map((item) => (
-            <details class="group rounded-xl border border-line bg-surface px-5 py-4 shadow-leaf-sm transition-shadow duration-[var(--dur-base)] ease-out-soft open:shadow-leaf">
-              <summary class="flex cursor-pointer items-center justify-between gap-4 text-base font-semibold text-ink marker:content-[''] group-open:text-primary-900">
-                <span>{item.q}</span>
+            <details class="group rounded-xl border border-line bg-surface px-5 py-4 shadow-leaf-sm transition-[box-shadow,border-color] duration-[var(--dur-base)] ease-out-soft open:border-primary-200 open:shadow-leaf">
+              <summary class="flex min-h-11 cursor-pointer items-center justify-between gap-4 text-base font-semibold text-ink marker:content-[''] group-open:text-primary-900">
+                <span class="text-pretty">{item.q}</span>
                 <span
                   aria-hidden="true"
                   class="shrink-0 text-2xl leading-none text-clay transition-transform duration-[var(--dur-fast)] ease-out-soft group-open:rotate-45"

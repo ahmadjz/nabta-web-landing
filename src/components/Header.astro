@@ -40,8 +40,24 @@ const homePath = locale === "ar" ? "/" : "/en/";
     >
       <Wordmark locale={locale} class="text-h3 text-primary-900" />
     </a>
-    <nav aria-label={t.header.langNavLabel}>
-      <LanguageToggle locale={locale} pageKey={pageKey} />
-    </nav>
+    <div class="flex min-w-0 items-center gap-2">
+      {
+        /* Motion-preference toggle (LPV2-02). A real toggle BUTTON: aria-pressed
+          reflects on/off (pressed === motion off), the visible label stays
+          constant. JS-only — hidden until the inline head script sets html[data-js]
+          (global.css), so no dead button on a no-JS render. min-h-11 = 44px target. */
+      }
+      <button
+        type="button"
+        data-motion-toggle
+        aria-pressed="false"
+        class="inline-flex min-h-11 items-center gap-2 rounded-full border border-sage-200 bg-surface px-3 text-small font-medium text-ink-700 transition duration-[var(--dur-fast)] ease-out-soft hover:border-primary-200 hover:bg-primary-50 hover:text-primary-700 aria-pressed:border-primary-200 aria-pressed:bg-primary-50 aria-pressed:text-primary-700"
+      >
+        {t.header.reduceMotion}
+      </button>
+      <nav aria-label={t.header.langNavLabel}>
+        <LanguageToggle locale={locale} pageKey={pageKey} />
+      </nav>
+    </div>
   </div>
 </header>
