@@ -16,9 +16,10 @@ import { fileURLToPath } from "node:url";
 const ROOT = fileURLToPath(new URL("..", import.meta.url));
 const DIST = join(ROOT, "dist");
 
-// The deploy contract (kept in sync with astro.config.mjs site + base).
-const SITE = "https://ahmadjz.github.io";
-const BASE = "/nabta-web-landing/";
+// The deploy contract (kept in sync with astro.config.mjs site + base). Defaults
+// preserve GitHub Pages; the apex deploy sets the two NABTA_LANDING_* variables.
+const SITE = process.env.NABTA_LANDING_SITE ?? "https://ahmadjz.github.io";
+const BASE = process.env.NABTA_LANDING_BASE ?? "/nabta-web-landing/";
 
 function walk(dir, ext, acc = []) {
   for (const name of readdirSync(dir)) {

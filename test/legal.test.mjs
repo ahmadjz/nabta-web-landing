@@ -25,7 +25,7 @@ import { CONTACT_EMAIL } from "../src/config.ts";
 
 const ROOT = fileURLToPath(new URL("..", import.meta.url));
 const DIST = join(ROOT, "dist");
-const BASE = "/nabta-web-landing/";
+const BASE = process.env.NABTA_LANDING_BASE ?? "/nabta-web-landing/";
 
 // The four stable contract routes (un-based, as built directories).
 const LEGAL_ROUTES = ["privacy", "en/privacy", "terms", "en/terms"];

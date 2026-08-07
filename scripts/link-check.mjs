@@ -20,9 +20,9 @@ import { setTimeout as sleep } from "node:timers/promises";
 
 const HOST = "127.0.0.1";
 const PORT = 4322; // distinct from preview-smoke's 4321 so the two can't collide
-const BASE = "/nabta-web-landing/";
+const BASE = process.env.NABTA_LANDING_BASE ?? "/nabta-web-landing/";
 const ORIGIN = `http://${HOST}:${PORT}`;
-const SITE = "https://ahmadjz.github.io";
+const SITE = process.env.NABTA_LANDING_SITE ?? "https://ahmadjz.github.io";
 const SITE_HOST = new URL(SITE).host;
 
 // DRAFT legal routes (base-prefixed, directory form) that must NOT be in the

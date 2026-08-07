@@ -23,9 +23,9 @@ import puppeteer from "puppeteer-core";
 
 const HOST = "127.0.0.1";
 const PORT = 4321;
-const BASE = "/nabta-web-landing/";
+const BASE = process.env.NABTA_LANDING_BASE ?? "/nabta-web-landing/";
 const ORIGIN = `http://${HOST}:${PORT}`;
-const SITE = "https://ahmadjz.github.io";
+const SITE = process.env.NABTA_LANDING_SITE ?? "https://ahmadjz.github.io";
 
 const checks = [];
 const record = (name, ok, detail = "") =>
@@ -961,11 +961,14 @@ try {
       /<html[^>]*\bdir="ltr"/.test(enHtml),
   );
 
-  // 3. THE base-path proof: bare root is NOT the site (dev would serve it).
+  // 3. The base-path proof: project Pages must reject bare root; apex hosting
+  // must serve it. This keeps both published contracts independently audited.
   const bare = await fetch(`${ORIGIN}/`, { redirect: "manual" });
   record(
-    "bare / is not served (base enforced)",
-    bare.status === 404,
+    BASE === "/"
+      ? "bare / is served for apex hosting"
+      : "bare / is not served (project base enforced)",
+    BASE === "/" ? bare.status === 200 : bare.status === 404,
     `status ${bare.status}`,
   );
 

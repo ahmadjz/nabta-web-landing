@@ -28,8 +28,8 @@ const ROOT = fileURLToPath(new URL("..", import.meta.url));
 const DIST = join(ROOT, "dist");
 
 // The deploy contract (kept in sync with astro.config.mjs site + base).
-const SITE = "https://ahmadjz.github.io";
-const BASE = "/nabta-web-landing/";
+const SITE = process.env.NABTA_LANDING_SITE ?? "https://ahmadjz.github.io";
+const BASE = process.env.NABTA_LANDING_BASE ?? "/nabta-web-landing/";
 const OG_PATH = "og-image.png";
 
 /** Collect every leaf-and-branch key path so two dicts can be set-compared.

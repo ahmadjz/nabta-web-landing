@@ -7,14 +7,17 @@ import { LEGAL_IS_DRAFT } from "./src/config/legal.ts";
 import { LEGAL_PAIRS } from "./src/i18n/page-pairs.ts";
 
 // ── The single source of truth for the deployed URL ──────────────────────────
-// GitHub Pages PROJECT pages serve under a sub-path, not the domain root. `site`
-// + `base` below are the ONLY place these literals live; every internal link,
-// asset, canonical, hreflang, OG url, sitemap <loc> and the robots Sitemap:
-// directive derives from them via `import.meta.env.SITE` / `BASE_URL`
-// (see src/lib/base.ts). A future custom domain flips `base` back to "/" and
-// nothing else has to change.
-const SITE = "https://ahmadjz.github.io";
-const BASE = "/nabta-web-landing/";
+// The default is the GitHub Pages project deployment. The VPS apex deployment
+// sets NABTA_LANDING_SITE=https://nabteh.app and NABTA_LANDING_BASE=/ (via
+// `npm run build:apex`). Every internal link, asset, canonical, hreflang, OG
+// url, sitemap <loc> and robots Sitemap directive derives from these values via
+// import.meta.env.SITE / BASE_URL (see src/lib/base.ts).
+const SITE = process.env.NABTA_LANDING_SITE ?? "https://ahmadjz.github.io";
+const rawBase = process.env.NABTA_LANDING_BASE ?? "/nabta-web-landing/";
+if (!rawBase.startsWith("/")) {
+  throw new Error("NABTA_LANDING_BASE must begin with '/'.");
+}
+const BASE = rawBase.endsWith("/") ? rawBase : `${rawBase}/`;
 
 // Draft legal pages (noindex) must ALSO be excluded from the sitemap — the same
 // `LEGAL_IS_DRAFT` flag that drives the banner + noindex drives this, so the three

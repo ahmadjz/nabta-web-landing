@@ -18,8 +18,8 @@ import { PAGE_PAIRS } from "../src/i18n/page-pairs.ts";
 
 const ROOT = fileURLToPath(new URL("..", import.meta.url));
 const DIST = join(ROOT, "dist");
-const SITE = "https://ahmadjz.github.io";
-const BASE = "/nabta-web-landing/";
+const SITE = process.env.NABTA_LANDING_SITE ?? "https://ahmadjz.github.io";
+const BASE = process.env.NABTA_LANDING_BASE ?? "/nabta-web-landing/";
 
 /** Map an un-based page path to its built file, dir- or flat-format. */
 function readBuilt(unbasedPath) {

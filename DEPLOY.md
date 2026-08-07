@@ -1,22 +1,49 @@
 # Deploy runbook — nabta-web-landing
 
-How this static site reaches production on **GitHub Pages**, how to **redeploy** it,
-and how to **verify** a deploy. The workflow is
-[`.github/workflows/deploy.yml`](.github/workflows/deploy.yml).
+How this static site reaches production on the **Nabta VPS**, how to redeploy it,
+and how to verify it. GitHub Pages remains a temporary fallback while the former
+Play Console URL is migrated.
 
 ## Live URL
 
-- **Site:** `https://ahmadjz.github.io/nabta-web-landing/`
-- **Privacy:** `https://ahmadjz.github.io/nabta-web-landing/privacy` (Play Console link)
-- **Terms:** `https://ahmadjz.github.io/nabta-web-landing/terms`
-- English mirror under `/en/` (e.g. `…/en/privacy`).
+- **Site:** `https://nabteh.app/`
+- **Privacy:** `https://nabteh.app/privacy/` (the URL for Play Console)
+- **Terms:** `https://nabteh.app/terms/`
+- English mirror under `/en/` (e.g. `https://nabteh.app/en/privacy/`).
 
-> Project pages serve under the **`/nabta-web-landing/` sub-path**, never the domain
-> root — that's why every URL is base-prefixed (see [CLAUDE.md](CLAUDE.md) → sub-path
-> strategy). `astro` emits directory-style pages, so `…/privacy` **301-redirects** to
-> `…/privacy/` — both resolve; always `curl -L`.
+> The VPS build uses root base `/`; the GitHub Pages fallback keeps its project base
+> `/nabta-web-landing/`. `astro` emits directory-style pages, so `…/privacy`
+> redirects to `…/privacy/`; always `curl -L`.
 
-## How a deploy happens
+## Production deploy (VPS)
+
+Build and prove the apex artifact locally, then ship it into Caddy's directory
+mount. The directory mount makes content updates live immediately; changing the
+Caddyfile or compose mount still requires a Caddy recreate.
+
+```bash
+cd nabta-web-landing
+npm run build:apex
+npm run test:apex
+npm run test:preview:apex
+npm run test:links:apex
+
+BOX=nabta-admin@31.97.45.116
+rsync -a --delete dist/ "$BOX:/srv/nabta/web-landing/dist/"
+```
+
+Verify before announcing a deploy:
+
+```bash
+BASE=https://nabteh.app
+for p in / /privacy/ /terms/ /en/ /en/privacy/ /en/terms/; do
+  echo "$(curl -sL -o /dev/null -w '%{http_code}' "$BASE$p")  $BASE$p"
+done
+curl -sSfL "$BASE/" | grep -o '<title>[^<]*</title>'
+curl -sSfL "$BASE/robots.txt" | grep '^Sitemap:'
+```
+
+## GitHub Pages fallback
 
 `deploy.yml` runs on **every push to `main`** (and via manual **Run workflow** /
 `workflow_dispatch`). Two jobs:
@@ -36,7 +63,7 @@ to finish.
 GitHub Pages doesn't run Jekyll, which would drop Astro's leading-underscore
 `_astro/` asset dir and 404 every hashed CSS/JS file.
 
-## To redeploy (the normal case)
+## To redeploy the fallback
 
 Just land a change on `main`:
 
@@ -63,7 +90,7 @@ gh run watch <run-id> --repo ahmadjz/nabta-web-landing --exit-status
 
 First-ever publish can take a few minutes to propagate; subsequent deploys are quick.
 
-## Verify a deploy
+## Verify the fallback
 
 ```bash
 BASE="https://ahmadjz.github.io/nabta-web-landing"
@@ -129,17 +156,16 @@ These were applied once to bring Pages online. You don't repeat them per deploy.
 | **404** on a bare `…/privacy` | Expected — it 301s to `…/privacy/`. Use `curl -L`. |
 | Workflow didn't trigger | Push wasn't to `main`, or use `gh workflow run "Deploy (GitHub Pages)"`. |
 
-## Custom domain (later)
+## Deployment targets
 
-Flip `base` → `/` in [`astro.config.mjs`](astro.config.mjs), add the domain under
-**Settings → Pages → Custom domain** (and a repo `CNAME`/DNS). Nothing else changes —
-every URL funnels through `site`/`base` + [`src/lib/base.ts`](src/lib/base.ts).
+`astro.config.mjs` defaults to GitHub Pages. `npm run build:apex` selects the VPS
+target with `NABTA_LANDING_SITE=https://nabteh.app` and `NABTA_LANDING_BASE=/`; the
+apex tests use those same variables. Do not set a GitHub Pages custom domain while
+the VPS owns the apex DNS record.
 
 ## Play-Store submission gate ⚠️
 
-The privacy URL is **live and stable**, but the Play-Store submission of it stays
-**blocked** until [`src/config/legal.ts`](src/config/legal.ts) `LEGAL_IS_DRAFT` is
-cleared (binding legal text landed — SITE-03). While `true`, every legal page is
-`noindex`, shows the DRAFT banner, and is excluded from the sitemap. The URL itself
-never relocates, so clearing the flag + redeploying is all that's needed when the text
-arrives.
+Update the existing Play Console privacy URL to `https://nabteh.app/privacy/` before
+retiring the GitHub Pages fallback. Submission remains **blocked** until
+[`src/config/legal.ts`](src/config/legal.ts) `LEGAL_IS_DRAFT` is cleared: while true,
+every legal page is noindex, shows the DRAFT banner, and is excluded from the sitemap.

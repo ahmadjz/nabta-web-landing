@@ -43,23 +43,23 @@ Stale Tailwind-v3 / Astro-v4-i18n docs dominate web search — do **not** follow
 
 ### Sub-path URL strategy (the spine — D-site-1)
 
-GitHub Pages **project pages** serve under a **sub-path**, not the domain root. The
-canonical public URL is **`https://ahmadjz.github.io/nabta-web-landing/`**.
+The canonical public URL is **`https://nabteh.app/`** on the VPS. GitHub Pages
+remains a temporary fallback under its project sub-path
+**`https://ahmadjz.github.io/nabta-web-landing/`**.
 
-- `site` + `base` are set **once** in [`astro.config.mjs`](astro.config.mjs)
-  (`site: "https://ahmadjz.github.io"`, `base: "/nabta-web-landing/"`). They are the
-  **only** place those literals live.
+- `site` + `base` are set **once** in [`astro.config.mjs`](astro.config.mjs). Their
+  defaults are the Pages fallback (`https://ahmadjz.github.io` +
+  `/nabta-web-landing/`); `npm run build:apex` supplies the VPS canonical values
+  (`https://nabteh.app` + `/`). They are the only URL configuration source.
 - **Every** internal link / asset / canonical / hreflang / OG `url` / sitemap `<loc>` /
   robots `Sitemap:` derives from them via the helpers in
   [`src/lib/base.ts`](src/lib/base.ts): **`withBase(path)`** (internal, base-prefixed) and
   **`absoluteUrl(path)`** (absolute, base-prefixed). **Never emit a bare `/privacy`** — it
   404s on a project page. `src/lib/base.ts` reads `import.meta.env.{SITE,BASE_URL}`, so
   there is no second copy of the URL.
-- **Audit with `astro preview`, NOT `astro dev`.** `dev` serves at root and would pass
-  while production 404s; `preview` honours `base`. The proof check
-  (`bare / → 404`) lives in [`scripts/preview-smoke.mjs`](scripts/preview-smoke.mjs).
-- **A future custom domain flips `base` back to `/`** — and nothing else changes, because
-  everything funnels through the two helpers + the one config source.
+- **Audit with `astro preview`, NOT `astro dev`.** `dev` always serves at root; preview
+  honours the selected base. [`scripts/preview-smoke.mjs`](scripts/preview-smoke.mjs)
+  asserts Pages rejects bare `/` and the apex mode serves it.
 
 ### i18n + RTL (D-site-2)
 
@@ -219,18 +219,13 @@ allowlisted `motion` island:
 
 ## Hosting / deploy
 
-- **GitHub Pages** (public HTTPS) — the URL submitted to Google Play. The interim dev VM
-  is internet-less and is **not** a host here (decision 34 D4).
-- **Canonical live URL: `https://ahmadjz.github.io/nabta-web-landing/`** (privacy at
-  `…/privacy`, terms at `…/terms`). A **custom domain later** flips `base` → `/` in
-  [`astro.config.mjs`](astro.config.mjs) — nothing else changes (everything funnels
-  through `site`/`base` + [`src/lib/base.ts`](src/lib/base.ts)).
-- **Deploy (SITE-05):** [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml)
-  on push to `main` — `astro build` → `actions/upload-pages-artifact@v3` (`dist/`) →
-  `actions/deploy-pages@v5`, with `permissions: { contents: read, pages: write,
-  id-token: write }`, `environment: github-pages`, and `concurrency: pages`
-  (`cancel-in-progress: false`). Quality is gated separately by `ci.yml` in parallel.
-  `public/.nojekyll` (shipped to `dist/`) keeps Pages from dropping `_astro/`.
+- **VPS static site** (public HTTPS) — the canonical deployment is
+  `https://nabteh.app/` (privacy at `…/privacy`, terms at `…/terms`). Build with
+  `npm run build:apex`, run the `*:apex` gates, rsync `dist/` to
+  `/srv/nabta/web-landing/dist/`, and serve it through Caddy's directory mount.
+- **GitHub Pages fallback:** [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml)
+  still builds the default project-path artifact on push to `main`. Keep it only until
+  the Play Console privacy URL is updated to the apex and the fallback can be retired.
 - **Human-gated, one-time** (the agent cannot self-apply): repo **public** + **Settings
   → Pages → Source = "GitHub Actions"**. `deploy-pages` fails with "Get Pages site
   failed" until that toggle lands.
