@@ -13,7 +13,7 @@ RTL philosophy. The palette re-tune and full motion design log live in
 Shared rules live in [../nabta-docs/claude/rules/](../nabta-docs/claude/rules/):
 
 - [Execution policy](../nabta-docs/claude/rules/execution-policy.md) — the session contract: local commits (no push), autonomy + safety floor, backend reaches the dev VM from a commit via /nabta-deploy. Gates: [repo-gates](../nabta-docs/claude/rules/repo-gates.md).
-- [Commit style](../nabta-docs/claude/rules/commit-style.md) · [TDD workflow](../nabta-docs/claude/rules/tdd-workflow.md) · [Secret handling](../nabta-docs/claude/rules/secret-handling.md) · [Auto-memory policy](../nabta-docs/claude/rules/auto-memory-policy.md)
+- [Commit style](../nabta-docs/claude/rules/commit-style.md) · [TDD workflow](../nabta-docs/claude/rules/tdd-workflow.md) · [Secret handling](../nabta-docs/claude/rules/secret-handling.md) · [Docs/memory rule](../nabta-docs/claude/rules/docs-memory-litmus.md)
 
 ## Stack
 
