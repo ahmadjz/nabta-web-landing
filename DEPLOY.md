@@ -72,18 +72,19 @@ git checkout main && git pull
 # …make your edits…
 npm run build && npm run test        # local sanity (optional but recommended)
 git commit -am "feat: …"
-git push origin main                 # ← triggers deploy.yml
+GH_TOKEN=$(gh auth token --user ahmadjz) git push origin main   # ← triggers deploy.yml (personal account)
 ```
 
 Or redeploy the current `main` with no code change (e.g. after a settings tweak):
 
 ```bash
-gh workflow run "Deploy (GitHub Pages)" --repo ahmadjz/nabta-web-landing
+GH_TOKEN=$(gh auth token --user ahmadjz) gh workflow run "Deploy (GitHub Pages)" --repo ahmadjz/nabta-web-landing
 ```
 
 Watch it:
 
 ```bash
+export GH_TOKEN=$(gh auth token --user ahmadjz)   # personal account
 gh run list  --repo ahmadjz/nabta-web-landing --limit 5
 gh run watch <run-id> --repo ahmadjz/nabta-web-landing --exit-status
 ```
@@ -143,6 +144,7 @@ These were applied once to bring Pages online. You don't repeat them per deploy.
 2. **Pages source = "GitHub Actions"** — set in **Settings → Pages → Build and
    deployment → Source**, or via API:
    ```bash
+   export GH_TOKEN=$(gh auth token --user ahmadjz)   # personal account; the active one is a work account
    gh api repos/ahmadjz/nabta-web-landing/pages -X POST -f build_type=workflow
    gh api repos/ahmadjz/nabta-web-landing/pages           # confirm build_type:workflow
    ```
